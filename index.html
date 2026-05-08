@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS - Roles & Permissions Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .tab-container { margin-bottom: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #e0e0e0; border: none; cursor: pointer; border-radius: 5px 5px 0 0; }
+        .tab.active { background: #007bff; color: white; }
+        .tab-content { display: none; background: white; padding: 20px; border-radius: 5px; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 12px; }
+        .badge-success { background: #28a745; color: white; }
+        .badge-warning { background: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LMS - Roles & Permissions Management</h1>
+        
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('roles')">Roles</button>
+                <button class="tab" onclick="switchTab('permissions')">Permissions</button>
+                <button class="tab" onclick="switchTab('assign')">Assign Permissions</button>
+                <button class="tab" onclick="switchTab('sync')">Sync Permissions</button>
+            </div>
+
+            <!-- Roles Tab -->
+            <div id="tab-roles" class="tab-content active">
+                <div class="card">
+                    <h2>Create New Role</h2>
+                    <div id="role-alert"></div>
+                    <div class="form-group">
+                        <label>Role Name:</label>
+                        <input type="text" id="role-name" placeholder="e.g. moderator, editor, admin">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <input type="text" id="role-description" placeholder="Optional description">
+                    </div>
+                    <button onclick="createRole()">Create Role</button>
+                </div>
+                <div class="card">
+                    <h2>Roles List</h2>
+                    <table id="roles-table">
+                        <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>User Count</th><th>Created</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Permissions Tab -->
+            <div id="tab-permissions" class="tab-content">
+                <div class="card">
+                    <h2>Create New Permission</h2>
+                    <div id="perm-alert"></div>
+                    <div class="form-group">
+                        <label>Permission Name:</label>
+                        <input type="text" id="perm-name" placeholder="e.g. user:create, course:delete">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <input type="text" id="perm-description" placeholder="Optional description">
+                    </div>
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <input type="text" id="perm-category" placeholder="e.g. User Management, Course Management">
+                    </div>
+                    <button onclick="createPermission()">Create Permission</button>
+                </div>
+                <div class="card">
+                    <h2>All Permissions</h2>
+                    <table id="perms-table">
+                        <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Category</th><th>Created</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Assign Permissions Tab -->
+            <div id="tab-assign" class="tab-content">
+                <div class="card">
+                    <h2>Assign Permissions to Role</h2>
+                    <div id="assign-alert"></div>
+                    <div class="form-group">
+                        <label>Role Name:</label>
+                        <input type="text" id="assign-role">
+                    </div>
+                    <div class="form-group">
+                        <label>Permission Names (comma-separated):</label>
+                        <input type="text" id="assign-perms" placeholder="e.g. user:list, course:view">
+                    </div>
+                    <button onclick="assignPermissionsToRole()">Assign Permissions</button>
+                </div>
+                <div class="card">
+                    <h2>Roles with Permissions</h2>
+                    <table id="assign-table">
+                        <thead><tr><th>Role</th><th>Permissions</th><th>User Count</th><th>Created</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sync Tab -->
+            <div id="tab-sync" class="tab-content">
+                <div class="card">
+                    <h2>Sync Permissions from Enum</h2>
+                    <p>Creates missing permissions from the Permission enum in the database.</p>
+                    <button onclick="syncPermissions()">Sync Permissions</button>
+                    <div id="sync-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('authToken') || '';
+        const API_BASE = '/api/v1';
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+            if (tab === 'roles') loadRoles();
+            if (tab === 'permissions') loadPermissions();
+            if (tab === 'assign') loadAssignData();
+        }
+
+        async function apiCall(url, options = {}) {
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+            const res = await fetch(url, { ...options, headers });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || 'Request failed: ' + res.status);
+            }
+            return res.json();
+        }
+
+        // Auth
+        async function login() {
+            const email = prompt('Email:');
+            const password = prompt('Password:');
+            try {
+                const data = await apiCall(API_BASE + '/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                authToken = data.data.token;
+                localStorage.setItem('authToken', authToken);
+                alert('Login successful!');
+                switchTab('roles');
+            } catch (e) {
+                alert('Login failed: ' + e.message);
+            }
+        }
+
+        async function logout() {
+            authToken = '';
+            localStorage.removeItem('authToken');
+            alert('Logged out.');
+            switchTab('roles');
+        }
+
+        // Roles
+        async function createRole() {
+            const name = document.getElementById('role-name').value.trim();
+            const description = document.getElementById('role-description').value.trim();
+            if (!name) { showAlert('role-alert', 'Role name is required', 'error'); return; }
+            try {
+                const data = await apiCall(API_BASE + '/roles', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, description })
+                });
+                showAlert('role-alert', 'Role created successfully! ID: ' + data.data.id, 'success');
+                document.getElementById('role-name').value = '';
+                document.getElementById('role-description').value = '';
+                loadRoles();
+            } catch (e) {
+                showAlert('role-alert', e.message, 'error');
+            }
+        }
+
+        async function loadRoles() {
+            try {
+                const data = await apiCall(API_BASE + '/roles');
+                const tbody = document.querySelector('#roles-table tbody');
+                tbody.innerHTML = data.data.map(r => `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td>${r.name}</td>
+                        <td>${r.description || '-'}</td>
+                        <td>${r.user_count || 0}</td>
+                        <td>${r.created_at ? new Date(r.created_at).toLocaleString() : '-'}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                showAlert('role-alert', e.message, 'error');
+            }
+        }
+
+        // Permissions
+        async function createPermission() {
+            const name = document.getElementById('perm-name').value.trim();
+            const description = document.getElementById('perm-description').value.trim();
+            const category = document.getElementById('perm-category').value.trim();
+            if (!name || !category) { showAlert('perm-alert', 'Name and Category are required', 'error'); return; }
+            try {
+                const data = await apiCall(API_BASE + '/permissions', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, description, category })
+                });
+                showAlert('perm-alert', 'Permission created successfully! ID: ' + data.data.id, 'success');
+                document.getElementById('perm-name').value = '';
+                document.getElementById('perm-description').value = '';
+                document.getElementById('perm-category').value = '';
+                loadPermissions();
+            } catch (e) {
+                showAlert('perm-alert', e.message, 'error');
+            }
+        }
+
+        async function loadPermissions() {
+            try {
+                const data = await apiCall(API_BASE + '/permissions/all');
+                const tbody = document.querySelector('#perms-table tbody');
+                let html = '';
+                for (const cat in data.data.categories) {
+                    html += `<tr><th colspan="5" style="background:#f0f0f0;">${cat}</th></tr>`;
+                    data.data.categories[cat].forEach(p => {
+                        html += `<tr><td>${p.id}</td><td>${p.name}</td><td>${p.description || '-'}</td><td>${p.category}</td><td>${p.created_at ? new Date(p.created_at).toLocaleString() : '-'}</td></tr>`;
+                    });
+                }
+                tbody.innerHTML = html;
+            } catch (e) {
+                showAlert('perm-alert', e.message, 'error');
+            }
+        }
+
+        // Assign
+        async function loadAssignData() {
+            try {
+                const data = await apiCall(API_BASE + '/permissions/roles');
+                const tbody = document.querySelector('#assign-table tbody');
+                tbody.innerHTML = data.data.map(r => `
+                    <tr>
+                        <td>${r.name}</td>
+                        <td>${r.permissions.map(p => p.name).join(', ') || '-'}</td>
+                        <td>${r.user_count || 0}</td>
+                        <td>${r.created_at ? new Date(r.created_at).toLocaleString() : '-'}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                showAlert('assign-alert', e.message, 'error');
+            }
+        }
+
+        async function assignPermissionsToRole() {
+            const role = document.getElementById('assign-role').value.trim();
+            const perms = document.getElementById('assign-perms').value.trim();
+            if (!role || !perms) { showAlert('assign-alert', 'Role and permissions are required', 'error'); return; }
+            try {
+                const data = await apiCall(API_BASE + '/permissions/roles', {
+                    method: 'POST',
+                    body: JSON.stringify({ role, permissions: perms.split(',').map(s => s.trim()) })
+                });
+                showAlert('assign-alert', data.message || 'Permissions assigned!', 'success');
+                document.getElementById('assign-role').value = '';
+                document.getElementById('assign-perms').value = '';
+                loadAssignData();
+            } catch (e) {
+                showAlert('assign-alert', e.message, 'error');
+            }
+        }
+
+        // Sync
+        async function syncPermissions() {
+            try {
+                const data = await apiCall(API_BASE + '/permissions/sync', {
+                    method: 'POST'
+                });
+                const resultDiv = document.getElementById('sync-result');
+                resultDiv.innerHTML = `<div class="alert alert-success">${data.message} (${data.data.created} created)</div>`;
+                setTimeout(() => { resultDiv.innerHTML = ''; }, 5000);
+            } catch (e) {
+                showAlert('sync-result', e.message, 'error');
+            }
+        }
+
+        function showAlert(containerId, msg, type) {
+            const div = document.getElementById(containerId);
+            div.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            setTimeout(() => { div.innerHTML = ''; }, 5000);
+        }
+
+        // Initialize
+        switchTab('roles');
+    </script>
+</body>
+</html>

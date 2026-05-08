@@ -1,0 +1,569 @@
+{
+  "info": {
+    "description": "Learning Management System REST API",
+    "title": "LMS API",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Access token returned on login/register/refresh"
+      },
+      "RefreshCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "refresh_token_cookie",
+        "description": "HttpOnly refresh token set on login/register"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error name"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Errors",
+            "additionalProperties": {}
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "first_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "previous_page": {
+            "type": "integer"
+          },
+          "next_page": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "per_page": {
+            "type": "integer",
+            "example": 20
+          },
+          "total": {
+            "type": "integer",
+            "example": 42
+          }
+        },
+        "additionalProperties": false
+      },
+      "SuccessEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "code": {
+            "type": "string",
+            "example": "OK"
+          },
+          "message": {
+            "type": "string",
+            "example": "Success"
+          },
+          "data": {
+            "description": "Response payload — shape varies by endpoint"
+          },
+          "meta": {
+            "description": "Pagination metadata (list endpoints only)",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "VALIDATION_ERROR",
+              "UNAUTHORIZED",
+              "FORBIDDEN",
+              "NOT_FOUND",
+              "INTERNAL_ERROR"
+            ],
+            "example": "VALIDATION_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "example": "email: Not a valid email address"
+          },
+          "data": {
+            "default": null
+          },
+          "meta": {
+            "default": null
+          },
+          "request_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "201": {
+            "description": "Registration successful — access token in body, refresh cookie set"
+          },
+          "422": {
+            "description": "Validation error — missing/invalid fields or duplicate email"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register a new user",
+        "description": "Creates a student account. Returns an access token in the body and sets an HttpOnly refresh token cookie."
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "Login successful — access token and user data in body"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "Log in",
+        "description": "Authenticates with email and password. Returns an access token in the body and sets an HttpOnly refresh token cookie."
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "New access token issued, new refresh cookie set"
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked refresh token"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "Rotate tokens",
+        "description": "Exchanges the refresh cookie for a new access token and rotated refresh cookie. The old refresh token JTI is blocklisted immediately.",
+        "security": [
+          {
+            "RefreshCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "Logged out — refresh cookie cleared"
+          },
+          "401": {
+            "description": "Missing or invalid refresh token"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "summary": "Log out",
+        "description": "Revokes the refresh token and clears the refresh cookie.",
+        "security": [
+          {
+            "RefreshCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses": {
+      "get": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "Paginated list with meta (page, per_page, total)"
+          },
+          "422": {
+            "description": "Invalid page or per_page parameter"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "List published courses",
+        "description": "Paginated public catalog of all published courses. No authentication required."
+      },
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "201": {
+            "description": "Course created"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "description": "Caller is not a teacher or admin"
+          },
+          "422": {
+            "description": "Validation error — title required"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "Create a course",
+        "description": "Creates a new unpublished course owned by the authenticated teacher.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}": {
+      "get": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "Course data (published courses include lesson_count and teacher_name)"
+          },
+          "404": {
+            "description": "Course not found or not published"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "Get a course",
+        "description": "Returns a published course for any caller. Authenticated course owners can also retrieve their own unpublished courses."
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "course_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ],
+      "patch": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "Updated course data"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "description": "Caller is not the owner"
+          },
+          "404": {
+            "description": "Course not found"
+          },
+          "422": {
+            "description": "Validation error or empty body"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "Update a course",
+        "description": "Partially updates a course. Only the owner teacher or an admin may update.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "204": {
+            "description": "Course deleted"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "description": "Caller is not the owner"
+          },
+          "404": {
+            "description": "Course not found"
+          },
+          "422": {
+            "description": "Course has active enrollments"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "Delete a course",
+        "description": "Soft-deletes a course. Blocked if the course has active enrollments.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/publish": {
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "Course is now published"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "description": "Caller is not the owner"
+          },
+          "404": {
+            "description": "Course not found"
+          },
+          "422": {
+            "description": "Course has no lessons"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "Publish a course",
+        "description": "Marks a course as published. The course must have at least one lesson.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "course_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    },
+    "/api/v1/courses/{course_id}/unpublish": {
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "200": {
+            "description": "Course is now unpublished"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "description": "Caller is not the owner"
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "Unpublish a course",
+        "description": "Marks a course as unpublished. Idempotent — safe to call on already-unpublished courses.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "course_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    },
+    "/api/v1/courses/{course_id}/enroll": {
+      "post": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "201": {
+            "description": "Enrollment created"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "description": "Caller is not a student"
+          },
+          "404": {
+            "description": "Course not found or not published"
+          },
+          "422": {
+            "description": "Already enrolled in this course"
+          }
+        },
+        "tags": [
+          "courses"
+        ],
+        "summary": "Enroll in a course",
+        "description": "Enrolls the authenticated student in a published course.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "course_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    }
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": ""
+    },
+    {
+      "name": "courses",
+      "description": ""
+    }
+  ],
+  "openapi": "3.1.0"
+}

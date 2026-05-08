@@ -1,0 +1,8 @@
+{
+  "code": "BAD_REQUEST",
+  "data": null,
+  "message": "The browser (or proxy) sent a request that this server could not understand.",
+  "meta": null,
+  "request_id": "0a415dce-07c1-4122-8c88-2b5987fe2dd3",
+  "success": false
+}

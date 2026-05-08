@@ -1,0 +1,9 @@
+export { BasePage } from './base.page';
+export { LoginPage } from './login.page';
+export { StudentDashboardPage } from './student-dashboard.page';
+export { HomePage } from './home.page';
+export { CourseCatalogPage } from './course-catalog.page';
+export { CourseDetailPage } from './course-detail.page';
+export { AdminDashboardPage } from './admin-dashboard.page';
+export { AdminUsersPage } from './admin-users.page';
+export { TeacherCoursesPage } from './teacher-courses.page';

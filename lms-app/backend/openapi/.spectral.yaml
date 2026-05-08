@@ -1,0 +1,51 @@
+extends:
+  - spectral:oas
+
+rules:
+  # ── Enforce LMS API standards ───────────────────────────────────────────────
+
+  lms-operation-must-have-summary:
+    description: Every operation must have a summary
+    message: "{{path}} is missing a 'summary'"
+    severity: error
+    given: "$.paths[*][get,post,put,patch,delete]"
+    then:
+      field: summary
+      function: truthy
+
+  lms-operation-must-document-4xx:
+    description: Mutating operations must document at least one 4xx response
+    message: "{{path}} should document 401, 403, or 422 responses"
+    severity: warn
+    given: "$.paths[*][post,put,patch,delete].responses"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          anyOf:
+            - required: ["401"]
+            - required: ["403"]
+            - required: ["422"]
+
+  lms-no-nullable-without-type:
+    description: nullable fields must declare a type
+    message: "{{path}}: nullable property missing type declaration"
+    severity: warn
+    given: "$..[?(@.nullable == true)]"
+    then:
+      field: type
+      function: truthy
+
+  lms-security-defined-for-auth-routes:
+    description: Auth-required routes must declare a security scheme
+    message: "{{path}} modifies state — ensure security is declared"
+    severity: warn
+    given: "$.paths[*][post,put,patch,delete]"
+    then:
+      field: security
+      function: defined
+
+  # Disable overly strict OAS defaults for our style
+  oas3-api-servers: off
+  info-contact: off
+  info-license: off

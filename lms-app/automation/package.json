@@ -1,0 +1,28 @@
+{
+  "name": "lms-tests",
+  "version": "1.0.0",
+  "description": "Playwright automation tests for LMS application",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:install": "playwright install --with-deps",
+    "test:clean": "rm -rf test-results playwright-report report.html",
+    "test:ci": "CI=true playwright test --reporter=html,json",
+    "automation:run": "npm run test:headed",
+    "automation:ci": "npm run test:ci",
+    "report:analyze": "node scripts/analyze-report.js",
+    "report:fix": "node scripts/auto-fix.js",
+    "automation:full": "npm run test:clean && npm run test:headed && npm run report:analyze"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.0",
+    "dotenv": "^16.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

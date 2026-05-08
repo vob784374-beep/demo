@@ -1,0 +1,59 @@
+UserData:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 1
+    email:
+      type: string
+      format: email
+      example: student@example.com
+    first_name:
+      type: string
+      example: Alice
+    last_name:
+      type: string
+      example: Smith
+    role:
+      type: string
+      enum: [student, teacher, admin]
+      example: student
+    is_active:
+      type: boolean
+      example: true
+
+RegisterRequest:
+  type: object
+  required: [email, password, first_name, last_name]
+  properties:
+    email:
+      type: string
+      format: email
+      example: alice@example.com
+    password:
+      type: string
+      format: password
+      minLength: 8
+      maxLength: 72
+      example: "SecurePass1!"
+    first_name:
+      type: string
+      maxLength: 100
+      example: Alice
+    last_name:
+      type: string
+      maxLength: 100
+      example: Smith
+
+LoginRequest:
+  type: object
+  required: [email, password]
+  properties:
+    email:
+      type: string
+      format: email
+      example: alice@example.com
+    password:
+      type: string
+      format: password
+      example: "SecurePass1!"

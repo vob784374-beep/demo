@@ -1,0 +1,74 @@
+CourseData:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 1
+    teacher_id:
+      type: integer
+      example: 2
+    title:
+      type: string
+      example: "Python for Beginners"
+    description:
+      type: string
+      nullable: true
+      example: "Learn Python from scratch"
+    category:
+      type: string
+      nullable: true
+      example: "Programming"
+    is_published:
+      type: boolean
+      example: false
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+
+PublishedCourseData:
+  allOf:
+    - $ref: '#/components/schemas/CourseData'
+    - type: object
+      properties:
+        lesson_count:
+          type: integer
+          example: 5
+        teacher_name:
+          type: string
+          example: "Carol Smith"
+
+CreateCourseRequest:
+  type: object
+  required: [title]
+  properties:
+    title:
+      type: string
+      minLength: 1
+      maxLength: 255
+      example: "Python for Beginners"
+    description:
+      type: string
+      nullable: true
+    category:
+      type: string
+      maxLength: 100
+      nullable: true
+
+UpdateCourseRequest:
+  type: object
+  minProperties: 1
+  properties:
+    title:
+      type: string
+      minLength: 1
+      maxLength: 255
+    description:
+      type: string
+      nullable: true
+    category:
+      type: string
+      maxLength: 100
+      nullable: true

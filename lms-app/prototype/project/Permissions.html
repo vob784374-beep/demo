@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IELTS CMS — Permissions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:       #101E35;
+  --blue:       #2563EB;
+  --blue-h:     #1D55D4;
+  --blue-dim:   rgba(37,99,235,0.08);
+  --blue-ring:  rgba(37,99,235,0.20);
+  --border:     #E2E8F0;
+  --border-2:   #CBD5E1;
+  --bg:         #F8FAFC;
+  --white:      #FFFFFF;
+  --input-bg:   #F1F5F9;
+  --text:       #0F172A;
+  --text-mid:   #475569;
+  --text-light: #94A3B8;
+  --sidebar-w:  220px;
+  --topbar-h:   56px;
+
+  /* role colors */
+  --c-sa: #7C3AED; --b-sa: rgba(124,58,237,0.10); --o-sa: rgba(124,58,237,0.22);
+  --c-ad: #2563EB; --b-ad: rgba(37,99,235,0.10);  --o-ad: rgba(37,99,235,0.22);
+  --c-in: #0891B2; --b-in: rgba(8,145,178,0.10);  --o-in: rgba(8,145,178,0.22);
+  --c-co: #D97706; --b-co: rgba(217,119,6,0.10);  --o-co: rgba(217,119,6,0.22);
+  --c-st: #16A34A; --b-st: rgba(22,163,74,0.10);  --o-st: rgba(22,163,74,0.22);
+}
+html, body { height: 100%; font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+/* ── SHELL ── */
+.shell { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR (same as user mgmt) ── */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--navy); display: flex; flex-direction: column;
+  position: relative; z-index: 20; overflow: hidden;
+}
+.sidebar::before {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.sb-logo { display: flex; align-items: center; gap: 10px; padding: 18px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.sb-logo-mark { width: 32px; height: 32px; border-radius: 9px; background: var(--blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sb-logo-name { font-size: 14px; font-weight: 600; color: #fff; }
+.sb-logo-sub  { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 0.04em; }
+.sb-section { padding: 18px 10px 6px; }
+.sb-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.10em; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 8px; margin-bottom: 4px; }
+.sb-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s; text-decoration: none; margin-bottom: 1px; }
+.sb-item:hover { background: rgba(255,255,255,0.06); }
+.sb-item.active { background: rgba(37,99,235,0.20); }
+.sb-item-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); flex-shrink: 0; }
+.sb-item.active .sb-item-icon { color: #6EA8FE; }
+.sb-item-label { font-size: 13px; color: rgba(255,255,255,0.45); font-weight: 400; }
+.sb-item.active .sb-item-label { color: #fff; font-weight: 500; }
+.sb-spacer { flex: 1; }
+.sb-footer { padding: 14px 10px; border-top: 1px solid rgba(255,255,255,0.07); }
+.sb-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
+.sb-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #6EA8FE); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+.sb-username { font-size: 12.5px; color: rgba(255,255,255,0.6); }
+.sb-role     { font-size: 10.5px; color: rgba(255,255,255,0.3); }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.topbar {
+  height: var(--topbar-h); flex-shrink: 0;
+  background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; gap: 16px;
+}
+.topbar-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-light); }
+.topbar-breadcrumb a { color: var(--text-light); text-decoration: none; }
+.topbar-breadcrumb a:hover { color: var(--blue); }
+.topbar-breadcrumb span { color: var(--text); font-weight: 500; }
+.topbar-sep { color: var(--border-2); }
+.topbar-badge { display: flex; align-items: center; gap: 6px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 7px; padding: 5px 12px; font-size: 12px; color: var(--text-mid); font-family: 'IBM Plex Mono', monospace; }
+.topbar-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; }
+
+/* ── PAGE ── */
+.page { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+/* page header */
+.page-header { padding: 20px 28px 0; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+.page-header-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.page-sub   { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.btn-primary { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 16px; background: var(--blue); border: none; border-radius: 8px; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 3px 12px rgba(37,99,235,0.25); transition: all 0.15s; }
+.btn-primary:hover { background: var(--blue-h); transform: translateY(-1px); }
+.btn-ghost { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; background: none; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-mid); cursor: pointer; transition: all 0.15s; }
+.btn-ghost:hover { border-color: var(--border-2); color: var(--text); background: var(--input-bg); }
+
+/* view tabs */
+.view-tabs { display: flex; gap: 0; padding-top: 2px; }
+.view-tab { padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--text-light); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; }
+.view-tab:hover { color: var(--text-mid); }
+.view-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* ── TOOLBAR ── */
+.toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--white); }
+.search-wrap { position: relative; max-width: 240px; }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-light); pointer-events: none; display: flex; align-items: center; }
+.search-input { width: 100%; height: 32px; background: var(--input-bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 0 12px 0 32px; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--text); outline: none; transition: all 0.18s; }
+.search-input::placeholder { color: var(--text-light); }
+.search-input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px var(--blue-ring); }
+.toolbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.toolbar-label { font-size: 12px; color: var(--text-light); }
+
+/* changed indicator */
+.changes-bar {
+  display: none; align-items: center; gap: 12px;
+  padding: 8px 20px; background: #EFF6FF; border-bottom: 1px solid #BFDBFE;
+  flex-shrink: 0;
+}
+.changes-bar.show { display: flex; }
+.changes-bar-text { font-size: 13px; color: #1D4ED8; flex: 1; }
+.changes-bar-text strong { font-weight: 600; }
+.btn-save-bar { height: 30px; padding: 0 14px; background: var(--blue); border: none; border-radius: 7px; font-family: 'IBM Plex Sans', sans-serif; font-size: 12.5px; font-weight: 600; color: #fff; cursor: pointer; transition: all 0.15s; }
+.btn-save-bar:hover { background: var(--blue-h); }
+.btn-discard { height: 30px; padding: 0 12px; background: none; border: 1px solid #BFDBFE; border-radius: 7px; font-family: 'IBM Plex Sans', sans-serif; font-size: 12.5px; font-weight: 500; color: #3B82F6; cursor: pointer; transition: all 0.15s; }
+.btn-discard:hover { background: #DBEAFE; }
+
+/* ── MATRIX LAYOUT ── */
+.matrix-container { flex: 1; overflow: auto; position: relative; }
+.matrix-container::-webkit-scrollbar { width: 6px; height: 6px; }
+.matrix-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ── MATRIX VIEW ── */
+.matrix-view { min-width: max-content; }
+
+.matrix-table { border-collapse: collapse; width: 100%; }
+
+/* sticky role header row */
+.matrix-head-row { position: sticky; top: 0; z-index: 30; background: var(--white); }
+
+.matrix-corner {
+  position: sticky; left: 0; z-index: 40;
+  background: var(--white);
+  width: 280px; min-width: 280px;
+  padding: 16px 20px 14px 24px;
+  border-bottom: 2px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.matrix-corner-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
+
+/* role column header */
+.role-col-header {
+  padding: 12px 8px; text-align: center;
+  border-bottom: 2px solid var(--border);
+  border-right: 1px solid var(--border);
+  min-width: 130px; width: 130px;
+  vertical-align: top;
+}
+.role-col-header:last-child { border-right: none; }
+
+.role-header-card {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.role-header-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.role-header-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.role-header-enum {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px; font-weight: 500;
+  padding: 2px 7px; border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+.role-header-count { font-size: 11px; color: var(--text-light); }
+
+/* col actions (grant all / revoke all) */
+.col-actions { display: flex; gap: 4px; justify-content: center; margin-top: 4px; }
+.col-action-btn {
+  font-size: 10px; font-weight: 500; padding: 2px 8px;
+  border-radius: 4px; border: 1px solid var(--border);
+  background: var(--input-bg); cursor: pointer;
+  color: var(--text-light); transition: all 0.13s;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.col-action-btn:hover { border-color: var(--border-2); color: var(--text-mid); }
+
+/* module separator row */
+.module-row { background: var(--input-bg); }
+.module-cell {
+  position: sticky; left: 0; z-index: 20;
+  background: var(--input-bg);
+  padding: 8px 24px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.module-name {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-mid);
+}
+.module-icon { width: 20px; height: 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+.module-expander { margin-left: auto; color: var(--text-light); cursor: pointer; transition: transform 0.2s; }
+.module-expander.open { transform: rotate(90deg); }
+.module-span-cell { background: var(--input-bg); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+.module-span-cell:last-child { border-right: none; }
+
+/* permission rows */
+.perm-row { transition: background 0.1s; }
+.perm-row:hover { background: #F8FAFC; }
+.perm-row.hidden { display: none; }
+
+.perm-label-cell {
+  position: sticky; left: 0; z-index: 10;
+  background: inherit;
+  width: 280px; min-width: 280px;
+  padding: 12px 12px 12px 24px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.perm-row:hover .perm-label-cell { background: #F8FAFC; }
+.perm-label-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.perm-label-scope { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.perm-label-desc  { font-size: 11.5px; color: var(--text-light); margin-top: 2px; line-height: 1.4; display: none; }
+.perm-row.expanded .perm-label-desc { display: block; }
+
+/* permission cell */
+.perm-cell {
+  text-align: center; padding: 12px 8px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  vertical-align: middle;
+}
+.perm-cell:last-child { border-right: none; }
+
+/* cell toggle */
+.cell-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  cursor: pointer; transition: all 0.15s;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg); position: relative;
+}
+.cell-toggle:hover { transform: scale(1.08); }
+.cell-toggle.granted {
+  border-color: var(--role-border);
+  background: var(--role-bg);
+}
+.cell-toggle.granted svg { color: var(--role-color); }
+.cell-toggle.denied  svg { color: var(--text-light); }
+.cell-toggle.inherited { opacity: 0.45; cursor: default; }
+.cell-toggle.inherited::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+}
+
+/* ── ROLE VIEW (column per role, rows are permissions) ── */
+.role-view { display: none; flex-direction: column; height: 100%; }
+.role-view.active { display: flex; }
+
+.role-select-bar {
+  display: flex; gap: 8px; padding: 16px 24px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+  overflow-x: auto; background: var(--white);
+}
+.role-select-btn {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 16px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--input-bg);
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+}
+.role-select-btn:hover { border-color: var(--border-2); }
+.role-select-btn.active { border-color: var(--rc); background: var(--rb); }
+.role-select-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rc); }
+.role-select-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.role-select-enum { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-light); }
+.role-select-btn.active .role-select-name,
+.role-select-btn.active .role-select-enum { color: var(--rc); }
+
+.role-detail { flex: 1; display: flex; overflow: hidden; }
+
+/* role info sidebar */
+.role-info-side {
+  width: 260px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 24px 20px;
+  overflow-y: auto;
+  background: var(--white);
+}
+.role-info-badge {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: #fff;
+  margin-bottom: 14px;
+}
+.role-info-name { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 4px; }
+.role-info-enum { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 5px; width: fit-content; margin-bottom: 14px; }
+.role-info-desc { font-size: 13px; color: var(--text-mid); line-height: 1.6; margin-bottom: 20px; }
+
+.role-info-stats { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.role-stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border); }
+.role-stat-label { font-size: 12px; color: var(--text-mid); }
+.role-stat-val { font-size: 14px; font-weight: 700; color: var(--text); }
+.role-stat-val.highlight { color: var(--rc); }
+
+.role-info-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.role-info-section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-light); margin-bottom: 10px; }
+
+.risk-indicator { display: flex; flex-direction: column; gap: 6px; }
+.risk-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.risk-label { font-size: 11.5px; color: var(--text-mid); width: 60px; flex-shrink: 0; }
+.risk-bar { flex: 1; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.risk-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+.risk-val { font-size: 11px; color: var(--text-light); font-family: 'IBM Plex Mono', monospace; }
+
+/* permission list (role view) */
+.perm-list-wrap { flex: 1; overflow-y: auto; padding: 0; }
+.perm-list-wrap::-webkit-scrollbar { width: 5px; }
+.perm-list-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.perm-module-group { border-bottom: 1px solid var(--border); }
+.perm-module-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 24px; background: var(--input-bg);
+  cursor: pointer; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 5;
+}
+.perm-module-icon-wrap { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+.perm-module-label { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-mid); flex: 1; }
+.perm-module-badge { font-size: 11px; font-weight: 500; color: var(--text-light); background: var(--white); border: 1px solid var(--border); padding: 2px 8px; border-radius: 100px; }
+.perm-module-chevron { color: var(--text-light); transition: transform 0.2s; }
+.perm-module-header.collapsed .perm-module-chevron { transform: rotate(-90deg); }
+
+.perm-list-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 24px; border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.perm-list-item:hover { background: #F8FAFC; }
+.perm-list-item:last-child { border-bottom: none; }
+.perm-list-text { flex: 1; min-width: 0; }
+.perm-list-name  { font-size: 13px; font-weight: 500; color: var(--text); }
+.perm-list-scope { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.perm-list-desc  { font-size: 12px; color: var(--text-light); margin-top: 3px; line-height: 1.4; }
+
+/* toggle switch (large) */
+.toggle-lg { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.toggle-lg input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-lg-track { position: absolute; inset: 0; border-radius: 100px; background: var(--border-2); cursor: pointer; transition: background 0.2s; }
+.toggle-lg input:checked + .toggle-lg-track { background: var(--blue); }
+.toggle-lg-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); pointer-events: none; }
+.toggle-lg input:checked ~ .toggle-lg-thumb { transform: translateX(18px); }
+
+/* effective badge */
+.perm-effective {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500;
+  padding: 2px 8px; border-radius: 100px; flex-shrink: 0;
+}
+.perm-effective.granted { background: rgba(22,163,74,0.10); color: #15803D; }
+.perm-effective.denied  { background: var(--input-bg); color: var(--text-light); border: 1px solid var(--border); }
+
+/* unsaved dot */
+.unsaved-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); display: none; }
+.unsaved-dot.show { display: inline-block; }
+
+/* ── TWEAKS ── */
+#tweaks-panel { display: none; position: fixed; bottom: 20px; right: 20px; background: #fff; border: 1.5px solid var(--border); border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,0.10); padding: 18px 20px; width: 230px; z-index: 1000; font-family: 'IBM Plex Sans', sans-serif; }
+#tweaks-panel.open { display: block; }
+.tweak-head { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mid); margin-bottom: 14px; }
+.tweak-row { margin-bottom: 12px; }
+.tweak-lbl { font-size: 11px; color: var(--text-light); margin-bottom: 6px; display: block; }
+.tweak-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.tweak-btn { padding: 4px 10px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--input-bg); font-size: 11.5px; cursor: pointer; color: var(--text-mid); font-family: inherit; transition: all 0.14s; }
+.tweak-btn.on, .tweak-btn:hover { border-color: var(--blue); background: var(--blue-dim); color: var(--blue); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V7l8-4 8 4v12"/><path d="M9 19v-5h6v5"/><path d="M4 7l8 4 8-4"/></svg>
+    </div>
+    <div><div class="sb-logo-name">IELTS Pro</div><div class="sb-logo-sub">CMS v3.12</div></div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Main</div>
+    <a class="sb-item" href="#">
+      <span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+      <span class="sb-item-label">Dashboard</span>
+    </a>
+    <a class="sb-item" href="#"><span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V7l8-4 8 4v12"/><path d="M9 19v-5h6v5"/><path d="M4 7l8 4 8-4"/></svg></span><span class="sb-item-label">Courses</span></a>
+    <a class="sb-item" href="#"><span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="sb-item-label">Assessments</span></a>
+    <a class="sb-item" href="#"><span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="sb-item-label">Analytics</span></a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Admin</div>
+    <a class="sb-item" href="User Management.html"><span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sb-item-label">Users & Roles</span></a>
+    <a class="sb-item active" href="#"><span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span class="sb-item-label">Permissions</span></a>
+    <a class="sb-item" href="#"><span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></span><span class="sb-item-label">System Logs</span></a>
+    <a class="sb-item" href="#"><span class="sb-item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></span><span class="sb-item-label">Settings</span></a>
+  </div>
+  <div class="sb-spacer"></div>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">SA</div>
+      <div><div class="sb-username">Super Admin</div><div class="sb-role">admin@ielts-pro.edu</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">
+      Admin <span class="topbar-sep">/</span>
+      <a href="User Management.html">Users & Roles</a>
+      <span class="topbar-sep">/</span>
+      <span>Permissions</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="unsaved-dot" id="unsaved-dot" title="Unsaved changes"></span>
+      <div class="topbar-badge"><div class="topbar-dot"></div>secure.ielts-pro.edu</div>
+    </div>
+  </div>
+
+  <div class="page">
+    <!-- page header -->
+    <div class="page-header">
+      <div class="page-header-top">
+        <div>
+          <div class="page-title">Role Permissions</div>
+          <div class="page-sub">Configure what each role can access — changes apply system-wide</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost" onclick="resetAll()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.57"/></svg>
+            Reset to defaults
+          </button>
+          <button class="btn-primary" onclick="saveAll()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Changes
+          </button>
+        </div>
+      </div>
+      <div class="view-tabs">
+        <div class="view-tab active" onclick="switchView('matrix',this)">
+          <svg width="13" height="13" style="vertical-align:-2px;margin-right:5px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Matrix View
+        </div>
+        <div class="view-tab" onclick="switchView('role',this)">
+          <svg width="13" height="13" style="vertical-align:-2px;margin-right:5px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          By Role
+        </div>
+      </div>
+    </div>
+
+    <!-- changes bar -->
+    <div class="changes-bar" id="changes-bar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="changes-bar-text"><strong id="change-count">0</strong> unsaved permission changes</span>
+      <button class="btn-discard" onclick="resetAll()">Discard</button>
+      <button class="btn-save-bar" onclick="saveAll()">Save Changes</button>
+    </div>
+
+    <!-- toolbar -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+        <input class="search-input" type="text" placeholder="Search permissions…" oninput="filterPerms(this.value)" />
+      </div>
+      <div class="toolbar-right">
+        <span class="toolbar-label">16 permissions · 5 roles · 4 modules</span>
+      </div>
+    </div>
+
+    <!-- MATRIX VIEW -->
+    <div class="matrix-container" id="view-matrix">
+      <div class="matrix-view">
+        <table class="matrix-table" id="matrix-table"></table>
+      </div>
+    </div>
+
+    <!-- ROLE VIEW -->
+    <div class="role-view" id="view-role">
+      <div class="role-select-bar" id="role-select-bar"></div>
+      <div class="role-detail">
+        <div class="role-info-side" id="role-info-side"></div>
+        <div class="perm-list-wrap" id="perm-list-wrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TWEAKS -->
+<div id="tweaks-panel">
+  <div class="tweak-head">Tweaks</div>
+  <div class="tweak-row">
+    <span class="tweak-lbl">Default view</span>
+    <div class="tweak-opts">
+      <button class="tweak-btn on" onclick="switchView('matrix',null);this.closest('.tweak-opts').querySelectorAll('.tweak-btn').forEach(b=>b.classList.remove('on'));this.classList.add('on')">Matrix</button>
+      <button class="tweak-btn" onclick="switchView('role',null);this.closest('.tweak-opts').querySelectorAll('.tweak-btn').forEach(b=>b.classList.remove('on'));this.classList.add('on')">By Role</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <span class="tweak-lbl">Show descriptions</span>
+    <div class="tweak-opts">
+      <button class="tweak-btn on" onclick="setDescriptions(false,this)">Hidden</button>
+      <button class="tweak-btn" onclick="setDescriptions(true,this)">Visible</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"view":"matrix","descriptions":false}/*EDITMODE-END*/;
+
+const ROLES = [
+  { id:'SUPER_ADMIN', label:'Super Admin', short:'SA', color:'#7C3AED', bg:'rgba(124,58,237,0.10)', border:'rgba(124,58,237,0.25)', desc:'Full system access — all modules, users, and configuration', users:2, riskAccess:100, riskData:95, riskAdmin:100 },
+  { id:'ADMIN',       label:'Admin',       short:'AD', color:'#2563EB', bg:'rgba(37,99,235,0.10)',  border:'rgba(37,99,235,0.25)',  desc:'Manage courses, users, and content. Cannot modify system config', users:8, riskAccess:75, riskData:70, riskAdmin:60 },
+  { id:'INSTRUCTOR',  label:'Instructor',  short:'IN', color:'#0891B2', bg:'rgba(8,145,178,0.10)',  border:'rgba(8,145,178,0.25)',  desc:'Create and manage assigned courses, grades, and feedback', users:34, riskAccess:45, riskData:40, riskAdmin:10 },
+  { id:'COORDINATOR', label:'Coordinator', short:'CO', color:'#D97706', bg:'rgba(217,119,6,0.10)',  border:'rgba(217,119,6,0.25)',  desc:'Coordinate schedules, enrolments, and student communications', users:12, riskAccess:35, riskData:30, riskAdmin:5 },
+  { id:'STUDENT',     label:'Student',     short:'ST', color:'#16A34A', bg:'rgba(22,163,74,0.10)',  border:'rgba(22,163,74,0.25)',  desc:'Access enrolled courses and assessments only', users:192, riskAccess:10, riskData:5, riskAdmin:0 },
+];
+
+const MODULES = [
+  {
+    id:'courses', label:'Course Management', color:'#2563EB', bg:'rgba(37,99,235,0.10)',
+    icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V7l8-4 8 4v12"/><path d="M9 19v-5h6v5"/><path d="M4 7l8 4 8-4"/></svg>',
+    perms:[
+      { id:'courses.read',    name:'View Courses',   scope:'courses:read',    desc:'View course listings, details, and enrolled students', defaults:['SUPER_ADMIN','ADMIN','INSTRUCTOR','COORDINATOR','STUDENT'] },
+      { id:'courses.write',   name:'Edit Courses',   scope:'courses:write',   desc:'Create and update course content, modules, and schedules', defaults:['SUPER_ADMIN','ADMIN','INSTRUCTOR'] },
+      { id:'courses.publish', name:'Publish',        scope:'courses:publish', desc:'Set course visibility and enrolment status', defaults:['SUPER_ADMIN','ADMIN','INSTRUCTOR'] },
+      { id:'courses.delete',  name:'Delete Courses', scope:'courses:delete',  desc:'Permanently remove courses and all associated data', defaults:['SUPER_ADMIN','ADMIN'] },
+    ]
+  },
+  {
+    id:'users', label:'User Management', color:'#7C3AED', bg:'rgba(124,58,237,0.10)',
+    icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    perms:[
+      { id:'users.read',    name:'View Users',    scope:'users:read',    desc:'View user profiles, activity, and account details', defaults:['SUPER_ADMIN','ADMIN'] },
+      { id:'users.invite',  name:'Invite Users',  scope:'users:invite',  desc:'Send invitations and onboard new users to the system', defaults:['SUPER_ADMIN','ADMIN'] },
+      { id:'users.roles',   name:'Edit Roles',    scope:'users:roles',   desc:'Assign and modify role assignments for any user', defaults:['SUPER_ADMIN'] },
+      { id:'users.suspend', name:'Suspend Users', scope:'users:suspend', desc:'Temporarily restrict or permanently disable user access', defaults:['SUPER_ADMIN','ADMIN'] },
+    ]
+  },
+  {
+    id:'assess', label:'Assessments', color:'#0891B2', bg:'rgba(8,145,178,0.10)',
+    icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+    perms:[
+      { id:'assess.read',   name:'View Scores',    scope:'assess:read',   desc:'Access band scores, test results, and learner analytics', defaults:['SUPER_ADMIN','ADMIN','INSTRUCTOR','COORDINATOR'] },
+      { id:'assess.grade',  name:'Grade Tests',    scope:'assess:grade',  desc:'Review and submit scores for student submissions', defaults:['SUPER_ADMIN','INSTRUCTOR'] },
+      { id:'assess.manage', name:'Manage Mocks',   scope:'assess:manage', desc:'Create, schedule, and configure mock test papers', defaults:['SUPER_ADMIN','ADMIN','INSTRUCTOR'] },
+      { id:'assess.export', name:'Export Reports', scope:'assess:export', desc:'Download analytics reports and data exports', defaults:['SUPER_ADMIN','ADMIN','COORDINATOR'] },
+    ]
+  },
+  {
+    id:'system', label:'System', color:'#DC2626', bg:'rgba(220,38,38,0.08)',
+    icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>',
+    perms:[
+      { id:'sys.logs',   name:'View Logs',      scope:'sys:logs',   desc:'Access system event logs and security audit trails', defaults:['SUPER_ADMIN'] },
+      { id:'sys.config', name:'System Config',  scope:'sys:config', desc:'Modify platform configuration and global settings', defaults:['SUPER_ADMIN'] },
+      { id:'sys.api',    name:'API Keys',        scope:'sys:api',    desc:'Generate and manage API credentials and webhooks', defaults:['SUPER_ADMIN'] },
+      { id:'sys.integr', name:'Integrations',   scope:'sys:integrations', desc:'Configure third-party integrations and data pipelines', defaults:['SUPER_ADMIN','ADMIN'] },
+    ]
+  },
+];
+
+// State: {permId: {roleId: bool}}
+const state = {};
+let changes = 0;
+let showDescriptions = false;
+
+// Init state from defaults
+MODULES.forEach(m => m.perms.forEach(p => {
+  state[p.id] = {};
+  ROLES.forEach(r => { state[p.id][r.id] = p.defaults.includes(r.id); });
+}));
+
+function markChange() {
+  changes++;
+  document.getElementById('unsaved-dot').classList.add('show');
+  document.getElementById('changes-bar').classList.add('show');
+  document.getElementById('change-count').textContent = changes;
+}
+
+function resetAll() {
+  MODULES.forEach(m => m.perms.forEach(p => {
+    ROLES.forEach(r => { state[p.id][r.id] = p.defaults.includes(r.id); });
+  }));
+  changes = 0;
+  document.getElementById('unsaved-dot').classList.remove('show');
+  document.getElementById('changes-bar').classList.remove('show');
+  buildMatrix();
+  if (activeRole) buildRoleView(activeRole);
+}
+
+function saveAll() {
+  changes = 0;
+  document.getElementById('unsaved-dot').classList.remove('show');
+  document.getElementById('changes-bar').classList.remove('show');
+  const btn = document.querySelector('.btn-primary');
+  const orig = btn.innerHTML;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!`;
+  btn.style.background = '#16A34A';
+  setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 2000);
+}
+
+// ── MATRIX ──
+function buildMatrix() {
+  const tbl = document.getElementById('matrix-table');
+  tbl.innerHTML = '';
+
+  // header
+  const thead = document.createElement('thead');
+  const hr = document.createElement('tr');
+  hr.className = 'matrix-head-row';
+
+  const corner = document.createElement('th');
+  corner.className = 'matrix-corner';
+  corner.innerHTML = `<div class="matrix-corner-title">Permission · Scope</div>`;
+  hr.appendChild(corner);
+
+  ROLES.forEach(r => {
+    const th = document.createElement('th');
+    th.className = 'role-col-header';
+    const grantedCount = Object.values(state).filter(p => p[r.id]).length;
+    th.innerHTML = `
+      <div class="role-header-card">
+        <div class="role-header-icon" style="background:linear-gradient(135deg,${r.color}cc,${r.color})">${r.short}</div>
+        <div class="role-header-name">${r.label}</div>
+        <div class="role-header-enum" style="background:${r.bg};color:${r.color}">${r.id}</div>
+        <div class="role-header-count">${grantedCount}/16 permissions</div>
+        <div class="col-actions">
+          <button class="col-action-btn" onclick="grantAll('${r.id}')">All</button>
+          <button class="col-action-btn" onclick="revokeAll('${r.id}')">None</button>
+        </div>
+      </div>`;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  tbl.appendChild(thead);
+
+  // body
+  const tbody = document.createElement('tbody');
+
+  MODULES.forEach((mod, mi) => {
+    // module row
+    const modTr = document.createElement('tr');
+    modTr.className = 'module-row';
+    const modGranted = mod.perms.reduce((acc,p) => acc + ROLES.filter(r=>state[p.id][r.id]).length, 0);
+
+    const modTd = document.createElement('td');
+    modTd.className = 'module-cell';
+    modTd.colSpan = 1;
+    modTd.innerHTML = `
+      <div class="module-name">
+        <div class="module-icon" style="background:${mod.bg};color:${mod.color}">${mod.icon}</div>
+        ${mod.label}
+        <span style="margin-left:4px;font-size:10.5px;color:var(--text-light);font-weight:400;text-transform:none;letter-spacing:0">${mod.perms.length} permissions</span>
+      </div>`;
+    modTr.appendChild(modTd);
+
+    ROLES.forEach(r => {
+      const td = document.createElement('td');
+      td.className = 'module-span-cell';
+      td.style.textAlign = 'center';
+      td.style.fontSize = '10.5px';
+      td.style.color = 'var(--text-light)';
+      const cnt = mod.perms.filter(p => state[p.id][r.id]).length;
+      td.innerHTML = `<span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:${cnt===mod.perms.length?mod.color:cnt===0?'var(--text-light)':'var(--text-mid)'};font-weight:500">${cnt}/${mod.perms.length}</span>`;
+      modTr.appendChild(td);
+    });
+    tbody.appendChild(modTr);
+
+    // perm rows
+    mod.perms.forEach(perm => {
+      const tr = document.createElement('tr');
+      tr.className = 'perm-row';
+      tr.dataset.perm = perm.id;
+      tr.dataset.name = perm.name.toLowerCase();
+
+      const labelTd = document.createElement('td');
+      labelTd.className = 'perm-label-cell';
+      labelTd.innerHTML = `
+        <div class="perm-label-name">${perm.name}</div>
+        <div class="perm-label-scope">${perm.scope}</div>
+        ${showDescriptions ? `<div class="perm-label-desc">${perm.desc}</div>` : ''}`;
+      tr.appendChild(labelTd);
+
+      ROLES.forEach(r => {
+        const td = document.createElement('td');
+        td.className = 'perm-cell';
+        const granted = state[perm.id][r.id];
+        td.innerHTML = `
+          <div class="cell-toggle ${granted?'granted':'denied'}"
+            style="--role-color:${r.color};--role-bg:${r.bg};--role-border:${r.border}"
+            onclick="toggleCell('${perm.id}','${r.id}',this)">
+            ${granted
+              ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${r.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+              : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+            }
+          </div>`;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  });
+
+  tbl.appendChild(tbody);
+}
+
+function toggleCell(permId, roleId, el) {
+  state[permId][roleId] = !state[permId][roleId];
+  const granted = state[permId][roleId];
+  const r = ROLES.find(x => x.id === roleId);
+  el.className = `cell-toggle ${granted?'granted':'denied'}`;
+  el.style.cssText = `--role-color:${r.color};--role-bg:${r.bg};--role-border:${r.border}`;
+  el.innerHTML = granted
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${r.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  markChange();
+  // update column header count
+  updateColCount(roleId);
+}
+
+function updateColCount(roleId) {
+  const idx = ROLES.findIndex(r => r.id === roleId);
+  const cnt = Object.values(state).filter(p => p[roleId]).length;
+  const headers = document.querySelectorAll('.role-col-header');
+  if (headers[idx]) {
+    const countEl = headers[idx].querySelector('.role-header-count');
+    if (countEl) countEl.textContent = `${cnt}/16 permissions`;
+  }
+}
+
+function grantAll(roleId) {
+  MODULES.forEach(m => m.perms.forEach(p => { state[p.id][roleId] = true; }));
+  markChange(); buildMatrix();
+  if (activeRole === roleId) buildRoleView(roleId);
+}
+function revokeAll(roleId) {
+  MODULES.forEach(m => m.perms.forEach(p => { state[p.id][roleId] = false; }));
+  markChange(); buildMatrix();
+  if (activeRole === roleId) buildRoleView(roleId);
+}
+
+function filterPerms(q) {
+  const lower = q.toLowerCase();
+  document.querySelectorAll('.perm-row').forEach(tr => {
+    const name = tr.dataset.name || '';
+    tr.classList.toggle('hidden', lower && !name.includes(lower));
+  });
+}
+
+// ── ROLE VIEW ──
+let activeRole = ROLES[0].id;
+
+function buildRoleSelectBar() {
+  const bar = document.getElementById('role-select-bar');
+  bar.innerHTML = '';
+  ROLES.forEach(r => {
+    const btn = document.createElement('div');
+    btn.className = `role-select-btn role-${r.id.toLowerCase()}`;
+    btn.style.setProperty('--rc', r.color);
+    btn.style.setProperty('--rb', r.bg);
+    if (r.id === activeRole) btn.classList.add('active');
+    btn.innerHTML = `
+      <span class="role-select-dot"></span>
+      <div>
+        <div class="role-select-name">${r.label}</div>
+        <div class="role-select-enum">${r.id}</div>
+      </div>`;
+    btn.onclick = () => {
+      document.querySelectorAll('.role-select-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeRole = r.id;
+      buildRoleView(r.id);
+    };
+    bar.appendChild(btn);
+  });
+}
+
+function buildRoleView(roleId) {
+  const r = ROLES.find(x => x.id === roleId);
+  const granted = Object.values(state).filter(p => p[roleId]).length;
+  const total   = Object.values(state).length;
+
+  // info side
+  const side = document.getElementById('role-info-side');
+  side.innerHTML = `
+    <div class="role-info-badge" style="background:linear-gradient(135deg,${r.color}cc,${r.color})">${r.short}</div>
+    <div class="role-info-name">${r.label}</div>
+    <div class="role-info-enum" style="background:${r.bg};color:${r.color}">${r.id}</div>
+    <div class="role-info-desc">${r.desc}</div>
+    <div class="role-info-stats">
+      <div class="role-stat">
+        <span class="role-stat-label">Permissions</span>
+        <span class="role-stat-val highlight" style="--rc:${r.color}">${granted}/${total}</span>
+      </div>
+      <div class="role-stat">
+        <span class="role-stat-label">Users</span>
+        <span class="role-stat-val">${r.users}</span>
+      </div>
+      <div class="role-stat">
+        <span class="role-stat-label">Enum value</span>
+        <span class="role-stat-val" style="font-family:'IBM Plex Mono',monospace;font-size:11px">${r.id}</span>
+      </div>
+    </div>
+    <div class="role-info-divider"></div>
+    <div class="role-info-section-title">Access Risk Level</div>
+    <div class="risk-indicator">
+      ${['Access','Data','Admin'].map((lbl,i) => {
+        const val = [r.riskAccess, r.riskData, r.riskAdmin][i];
+        const col = val > 70 ? '#DC2626' : val > 40 ? '#D97706' : '#16A34A';
+        return `<div class="risk-bar-wrap">
+          <span class="risk-label">${lbl}</span>
+          <div class="risk-bar"><div class="risk-fill" style="width:${val}%;background:${col}"></div></div>
+          <span class="risk-val">${val}%</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // perm list
+  const list = document.getElementById('perm-list-wrap');
+  list.innerHTML = '';
+  MODULES.forEach(mod => {
+    const grp = document.createElement('div');
+    grp.className = 'perm-module-group';
+
+    const header = document.createElement('div');
+    header.className = 'perm-module-header';
+    const modGranted = mod.perms.filter(p => state[p.id][roleId]).length;
+    header.innerHTML = `
+      <div class="perm-module-icon-wrap" style="background:${mod.bg};color:${mod.color}">${mod.icon}</div>
+      <span class="perm-module-label">${mod.label}</span>
+      <span class="perm-module-badge">${modGranted}/${mod.perms.length}</span>
+      <svg class="perm-module-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+    header.onclick = () => header.classList.toggle('collapsed');
+    grp.appendChild(header);
+
+    mod.perms.forEach(perm => {
+      const item = document.createElement('div');
+      item.className = 'perm-list-item';
+      const granted = state[perm.id][roleId];
+      item.innerHTML = `
+        <div class="perm-list-text">
+          <div class="perm-list-name">${perm.name}</div>
+          <div class="perm-list-scope">${perm.scope}</div>
+          <div class="perm-list-desc">${perm.desc}</div>
+        </div>
+        <span class="perm-effective ${granted?'granted':'denied'}">
+          ${granted
+            ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Granted`
+            : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Denied`
+          }
+        </span>
+        <label class="toggle-lg">
+          <input type="checkbox" ${granted?'checked':''} onchange="toggleRoleViewPerm('${perm.id}','${roleId}',this.checked)"/>
+          <div class="toggle-lg-track"></div>
+          <div class="toggle-lg-thumb"></div>
+        </label>`;
+      grp.appendChild(item);
+    });
+
+    list.appendChild(grp);
+  });
+}
+
+function toggleRoleViewPerm(permId, roleId, val) {
+  state[permId][roleId] = val;
+  markChange();
+  // update effective badge inline
+  const items = document.querySelectorAll('.perm-list-item');
+  items.forEach(item => {
+    const cb = item.querySelector('input[type=checkbox]');
+    const badge = item.querySelector('.perm-effective');
+    if (cb && badge) {
+      badge.className = `perm-effective ${cb.checked?'granted':'denied'}`;
+      badge.innerHTML = cb.checked
+        ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Granted`
+        : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Denied`;
+    }
+  });
+  // update module badge
+  buildRoleView(roleId);
+}
+
+// ── VIEW SWITCHING ──
+function switchView(view, tab) {
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  if (tab) tab.classList.add('active');
+  else {
+    const tabs = document.querySelectorAll('.view-tab');
+    tabs[view==='matrix'?0:1].classList.add('active');
+  }
+  document.getElementById('view-matrix').style.display = view === 'matrix' ? 'block' : 'none';
+  const rv = document.getElementById('view-role');
+  rv.classList.toggle('active', view === 'role');
+}
+
+function setDescriptions(val, btn) {
+  showDescriptions = val;
+  btn.closest('.tweak-opts').querySelectorAll('.tweak-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  buildMatrix();
+}
+
+// tweaks
+window.addEventListener('message', e => {
+  if (e.data?.type === '__activate_edit_mode')   document.getElementById('tweaks-panel').classList.add('open');
+  if (e.data?.type === '__deactivate_edit_mode') document.getElementById('tweaks-panel').classList.remove('open');
+});
+window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+
+// init
+buildMatrix();
+buildRoleSelectBar();
+buildRoleView(ROLES[0].id);
+switchView('matrix', null);
+</script>
+</body>
+</html>

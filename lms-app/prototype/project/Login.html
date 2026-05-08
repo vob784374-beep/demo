@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IELTS Pro — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:        #0C1E3E;
+    --navy-mid:    #162C55;
+    --navy-light:  #1E3A6A;
+    --blue:        #2B7FFF;
+    --blue-hover:  #1A6AE8;
+    --teal:        #29B6C8;
+    --gold:        #C9A84C;
+    --white:       #FFFFFF;
+    --off-white:   #F7F8FC;
+    --input-bg:    #F2F4FA;
+    --border:      #DDE2F0;
+    --text-dark:   #0C1E3E;
+    --text-mid:    #4A5580;
+    --text-light:  #8A92B2;
+    --error:       #E05252;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel-brand {
+    flex: 0 0 44%;
+    background: var(--navy);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 52px 56px;
+    overflow: hidden;
+  }
+
+  /* decorative arcs */
+  .panel-brand::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(41,182,200,0.18);
+    pointer-events: none;
+  }
+  .panel-brand::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 340px; height: 340px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(43,127,255,0.18);
+    pointer-events: none;
+  }
+
+  .brand-deco-ring {
+    position: absolute;
+    top: 50px; right: 50px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(255,255,255,0.06);
+  }
+  .brand-deco-ring-2 {
+    position: absolute;
+    top: 100px; right: 100px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(255,255,255,0.06);
+  }
+  .brand-deco-grid {
+    position: absolute;
+    bottom: 120px; right: 0;
+    width: 180px; height: 180px;
+    opacity: 0.05;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* large decorative letter */
+  .brand-bg-letter {
+    position: absolute;
+    bottom: -40px;
+    left: -20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 340px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.025);
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+    letter-spacing: -10px;
+  }
+
+  .brand-logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand-logo-badge {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+  .brand-logo-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+  .brand-logo-name span {
+    color: var(--teal);
+  }
+
+  .brand-center {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 0;
+  }
+
+  .brand-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(41,182,200,0.12);
+    border: 1px solid rgba(41,182,200,0.3);
+    border-radius: 100px;
+    padding: 6px 14px;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+  .brand-tag-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+  .brand-tag-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--teal);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .brand-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(30px, 2.8vw, 42px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+  .brand-headline em {
+    font-style: italic;
+    color: var(--teal);
+  }
+
+  .brand-sub {
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.7;
+    max-width: 320px;
+  }
+
+  .brand-divider {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--teal));
+    border-radius: 2px;
+    margin: 32px 0;
+  }
+
+  .brand-stats {
+    display: flex;
+    gap: 32px;
+  }
+  .brand-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .brand-stat-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.04em;
+  }
+
+  .brand-footer {
+    position: relative;
+    font-size: 12px;
+    color: rgba(255,255,255,0.25);
+    line-height: 1.6;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .panel-form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 40px;
+    background: var(--white);
+  }
+
+  .form-card {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .form-header {
+    margin-bottom: 36px;
+  }
+  .form-welcome {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--blue);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .form-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .form-subtitle {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* form fields */
+  .field {
+    margin-bottom: 20px;
+  }
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+  .field-wrap {
+    position: relative;
+  }
+  .field-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-light);
+    display: flex; align-items: center;
+  }
+  .field-input {
+    width: 100%;
+    height: 52px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0 16px 0 46px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text-dark);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .field-input::placeholder { color: var(--text-light); }
+  .field-input:focus {
+    border-color: var(--blue);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(43,127,255,0.10);
+  }
+
+  /* password toggle */
+  .field-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    display: flex; align-items: center;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s;
+  }
+  .field-toggle:hover { color: var(--text-mid); }
+  #password-input { padding-right: 46px; }
+
+  /* row: remember + forgot */
+  .field-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox-wrap input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    background: var(--input-bg);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.18s, border-color 0.18s;
+    position: relative;
+  }
+  .checkbox-wrap input[type="checkbox"]:checked {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+  .checkbox-wrap input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px; top: 2px;
+    width: 8px; height: 5px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg);
+  }
+  .checkbox-label {
+    font-size: 14px;
+    color: var(--text-mid);
+  }
+  .forgot-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--blue);
+    text-decoration: none;
+    transition: color 0.18s;
+  }
+  .forgot-link:hover { color: var(--blue-hover); }
+
+  /* CTA */
+  .btn-login {
+    width: 100%;
+    height: 54px;
+    background: linear-gradient(135deg, #1A6AE8, #2B7FFF 60%, #1A9FBF);
+    border: none;
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(43,127,255,0.30);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn-login:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(43,127,255,0.40);
+  }
+  .btn-login:active { transform: translateY(0); }
+  .btn-login::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+    border-radius: inherit;
+  }
+
+  .btn-arrow {
+    display: flex; align-items: center;
+    transition: transform 0.2s;
+  }
+  .btn-login:hover .btn-arrow { transform: translateX(3px); }
+
+  /* divider */
+  .or-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 28px 0;
+  }
+  .or-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .or-text {
+    font-size: 13px;
+    color: var(--text-light);
+    white-space: nowrap;
+  }
+
+  /* signup */
+  .signup-row {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-mid);
+  }
+  .signup-link {
+    color: var(--blue);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.18s;
+  }
+  .signup-link:hover { color: var(--blue-hover); }
+
+  /* subtle bottom note */
+  .form-note {
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .form-note-badge {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: rgba(41,182,200,0.10);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal);
+  }
+  .form-note-text {
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+  .form-note-text strong {
+    color: var(--text-mid);
+    font-weight: 500;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 860px) {
+    .page { flex-direction: column; }
+    .panel-brand {
+      flex: none;
+      padding: 36px 32px 40px;
+    }
+    .brand-center { padding: 24px 0; }
+    .brand-headline { font-size: 26px; }
+    .brand-stats { gap: 24px; }
+    .brand-bg-letter { font-size: 200px; }
+    .panel-form {
+      padding: 40px 24px 56px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .panel-brand { padding: 28px 20px 32px; }
+    .brand-stats { display: none; }
+    .panel-form { padding: 32px 20px 48px; }
+    .form-title { font-size: 28px; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .delay-1 { animation-delay: 0.08s; }
+  .delay-2 { animation-delay: 0.16s; }
+  .delay-3 { animation-delay: 0.24s; }
+  .delay-4 { animation-delay: 0.32s; }
+  .delay-5 { animation-delay: 0.40s; }
+  .delay-6 { animation-delay: 0.48s; }
+
+  /* Tweaks panel */
+  #tweaks-panel {
+    display: none;
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(12,30,62,0.12);
+    padding: 20px 22px;
+    width: 240px;
+    z-index: 1000;
+    font-family: 'DM Sans', sans-serif;
+  }
+  #tweaks-panel.open { display: block; }
+  .tweak-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .tweak-row { margin-bottom: 14px; }
+  .tweak-label {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .tweak-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tweak-btn {
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--input-bg);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-mid);
+  }
+  .tweak-btn.active, .tweak-btn:hover {
+    border-color: var(--blue);
+    background: rgba(43,127,255,0.08);
+    color: var(--blue);
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── LEFT BRAND PANEL ── -->
+  <aside class="panel-brand">
+    <div class="brand-deco-ring"></div>
+    <div class="brand-deco-ring-2"></div>
+    <div class="brand-deco-grid"></div>
+    <div class="brand-bg-letter">IE</div>
+
+    <div class="brand-logo fade-up">
+      <div class="brand-logo-badge">IP</div>
+      <div class="brand-logo-name">IELTS <span>Pro</span></div>
+    </div>
+
+    <div class="brand-center">
+      <div class="brand-tag fade-up delay-1">
+        <div class="brand-tag-dot"></div>
+        <span class="brand-tag-text">Official Test Prep</span>
+      </div>
+
+      <h1 class="brand-headline fade-up delay-2">
+        Master English.<br>
+        Achieve Your<br>
+        <em>Band Score.</em>
+      </h1>
+
+      <div class="brand-divider fade-up delay-3"></div>
+
+      <p class="brand-sub fade-up delay-3">
+        Structured courses, adaptive practice tests, and expert feedback — designed for IELTS Academic &amp; General Training success.
+      </p>
+
+      <div class="brand-stats fade-up delay-4">
+        <div>
+          <span class="brand-stat-num">94%</span>
+          <span class="brand-stat-label">Band 7+ Rate</span>
+        </div>
+        <div>
+          <span class="brand-stat-num">120K+</span>
+          <span class="brand-stat-label">Students</span>
+        </div>
+        <div>
+          <span class="brand-stat-num">40+</span>
+          <span class="brand-stat-label">Countries</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="brand-footer fade-up delay-5">
+      © 2026 IELTS Pro · Accredited Preparation Platform<br>
+      Aligned with British Council &amp; IDP standards
+    </p>
+  </aside>
+
+  <!-- ── RIGHT FORM PANEL ── -->
+  <main class="panel-form">
+    <div class="form-card">
+
+      <div class="form-header fade-up">
+        <p class="form-welcome">Welcome back</p>
+        <h2 class="form-title">Sign in to<br>your account</h2>
+        <p class="form-subtitle">Continue your IELTS preparation journey.</p>
+      </div>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+
+        <div class="field fade-up delay-1">
+          <label class="field-label" for="email-input">Email address</label>
+          <div class="field-wrap">
+            <span class="field-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/>
+              </svg>
+            </span>
+            <input class="field-input" id="email-input" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+        </div>
+
+        <div class="field fade-up delay-2">
+          <label class="field-label" for="password-input">Password</label>
+          <div class="field-wrap">
+            <span class="field-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <input class="field-input" id="password-input" type="password" placeholder="Enter your password" autocomplete="current-password" required />
+            <button type="button" class="field-toggle" id="pw-toggle" aria-label="Toggle password visibility">
+              <svg id="eye-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg id="eye-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="field-row fade-up delay-3">
+          <label class="checkbox-wrap">
+            <input type="checkbox" id="remember-me" />
+            <span class="checkbox-label">Remember me</span>
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-login fade-up delay-4">
+          Sign In
+          <span class="btn-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </button>
+
+      </form>
+
+      <div class="or-divider fade-up delay-5">
+        <div class="or-line"></div>
+        <span class="or-text">New to IELTS Pro?</span>
+        <div class="or-line"></div>
+      </div>
+
+      <p class="signup-row fade-up delay-5">
+        <a href="#" class="signup-link">Create a free account →</a>
+      </p>
+
+      <div class="form-note fade-up delay-6">
+        <div class="form-note-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <p class="form-note-text">
+          <strong>Secure &amp; encrypted.</strong> Your data is protected with 256-bit SSL encryption and never shared.
+        </p>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Tweaks panel -->
+<div id="tweaks-panel">
+  <div class="tweak-title">Tweaks</div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Form layout</span>
+    <div class="tweak-options">
+      <button class="tweak-btn active" onclick="setLayout('split')">Split</button>
+      <button class="tweak-btn" onclick="setLayout('centered')">Centered</button>
+    </div>
+  </div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Accent color</span>
+    <div class="tweak-options">
+      <button class="tweak-btn active" onclick="setAccent('#2B7FFF','#1A6AE8','#29B6C8')">Blue</button>
+      <button class="tweak-btn" onclick="setAccent('#1B7F5E','#167A56','#20C9A0')">Teal</button>
+      <button class="tweak-btn" onclick="setAccent('#7B4FD8','#6A3FC7','#B08FFF')">Purple</button>
+    </div>
+  </div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Panel darkness</span>
+    <div class="tweak-options">
+      <button class="tweak-btn active" onclick="setPanelColor('#0C1E3E')">Navy</button>
+      <button class="tweak-btn" onclick="setPanelColor('#1a1a2e')">Dark</button>
+      <button class="tweak-btn" onclick="setPanelColor('#1B3A4B')">Slate</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // password toggle
+  const pwInput = document.getElementById('password-input');
+  const pwToggle = document.getElementById('pw-toggle');
+  const eyeShow = document.getElementById('eye-show');
+  const eyeHide = document.getElementById('eye-hide');
+  pwToggle.addEventListener('click', () => {
+    const hidden = pwInput.type === 'password';
+    pwInput.type = hidden ? 'text' : 'password';
+    eyeShow.style.display = hidden ? 'none' : '';
+    eyeHide.style.display = hidden ? '' : 'none';
+  });
+
+  // form submit demo
+  function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.querySelector('.btn-login');
+    btn.textContent = 'Signing in…';
+    btn.style.opacity = '0.8';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Signed in!`;
+      btn.style.opacity = '1';
+      btn.style.background = 'linear-gradient(135deg,#1a7f5e,#20C9A0)';
+      setTimeout(() => {
+        btn.innerHTML = `Sign In <span class="btn-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>`;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 2000);
+    }, 1200);
+  }
+
+  // tweaks
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"accent":"blue","panel":"navy","layout":"split"}/*EDITMODE-END*/;
+
+  window.addEventListener('message', e => {
+    if (e.data?.type === '__activate_edit_mode') document.getElementById('tweaks-panel').classList.add('open');
+    if (e.data?.type === '__deactivate_edit_mode') document.getElementById('tweaks-panel').classList.remove('open');
+  });
+  window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+
+  function setLayout(v) {
+    const page = document.querySelector('.page');
+    if (v === 'centered') {
+      document.querySelector('.panel-brand').style.display = 'none';
+      page.style.justifyContent = 'center';
+      page.style.background = 'linear-gradient(135deg,#0C1E3E 0%,#1E3A6A 100%)';
+    } else {
+      document.querySelector('.panel-brand').style.display = '';
+      page.style.justifyContent = '';
+      page.style.background = '';
+    }
+    updateTweakBtn(event.target);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { layout: v } }, '*');
+  }
+
+  function setAccent(blue, hover, teal) {
+    document.documentElement.style.setProperty('--blue', blue);
+    document.documentElement.style.setProperty('--blue-hover', hover);
+    document.documentElement.style.setProperty('--teal', teal);
+    updateTweakBtn(event.target);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { accent: blue } }, '*');
+  }
+
+  function setPanelColor(c) {
+    document.documentElement.style.setProperty('--navy', c);
+    document.querySelector('.panel-brand').style.background = c;
+    updateTweakBtn(event.target);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { panel: c } }, '*');
+  }
+
+  function updateTweakBtn(btn) {
+    btn.closest('.tweak-options').querySelectorAll('.tweak-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

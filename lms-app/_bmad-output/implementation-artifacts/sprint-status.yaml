@@ -1,0 +1,100 @@
+# generated: 2026-04-18
+# last_updated: 2026-04-19T00:00:00Z
+# project: lms-app
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: D:\Practice\demo\lms-app/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-18
+last_updated: 2026-04-20T04:00:00Z
+project: lms-app
+project_key: NOKEY
+tracking_system: file-system
+story_location: D:\Practice\demo\lms-app/_bmad-output/implementation-artifacts
+
+development_status:
+
+  # ─── Epic 1: Project Foundation & Development Environment ───────────────────
+  epic-1: in-progress
+  1-1-initialize-monorepo-and-project-structure: done
+  1-2-configure-local-development-environment: done
+  1-3-flask-application-factory-and-core-middleware: done
+  1-4-database-schema-and-initial-migration: done
+  1-5-next-js-frontend-base-configuration: done
+  epic-1-retrospective: optional
+
+  # ─── Epic 2: User Authentication & Authorization ────────────────────────────
+  epic-2: done
+  2-1-user-registration-api: done
+  2-2-user-login-and-jwt-token-issuance: done
+  2-3-token-refresh-and-logout: done
+  2-4-role-based-access-control-middleware: done
+  2-5-frontend-login-and-registration-pages: done
+  2-6-protected-route-guards-and-role-navigation: done
+  epic-2-retrospective: optional
+
+  # ─── Epic 3: Course Catalog & Enrollment ────────────────────────────────────
+  epic-3: in-progress
+  3-1-course-creation-and-management-api: done
+  3-2-course-publishing-workflow: done
+  3-3-public-course-catalog-api: done
+  3-4-course-catalog-frontend: done
+  3-5-course-detail-and-student-enrollment: done
+  epic-3-retrospective: optional
+
+  # ─── Epic 4: Learning Content, Exercises & Assessments ──────────────────────
+  epic-4: backlog
+  4-1-lesson-crud-api: backlog
+  4-2-lesson-viewing-and-completion: backlog
+  4-3-media-upload-and-audio-playback: backlog
+  4-4-exercise-creation-and-management-api: backlog
+  4-5-exercise-submission-and-auto-grading: backlog
+  4-6-assessment-creation-and-management-api: backlog
+  4-7-assessment-submission-and-grading: backlog
+  epic-4-retrospective: optional
+
+  # ─── Epic 5: Progress Tracking & Dashboards ─────────────────────────────────
+  epic-5: backlog
+  5-1-progress-tracking-api: backlog
+  5-2-student-dashboard: backlog
+  5-3-teacher-dashboard: backlog
+  5-4-admin-dashboard-and-user-management: backlog
+  epic-5-retrospective: optional
+
+  # ─── Epic 6: Production Infrastructure & CI/CD ──────────────────────────────
+  epic-6: backlog
+  6-1-terraform-vpc-and-networking: backlog
+  6-2-rds-elasticache-and-secrets-infrastructure: backlog
+  6-3-ecs-fargate-services-and-alb: backlog
+  6-4-s3-and-cloudfront-media-distribution: backlog
+  6-5-github-actions-ci-cd-pipelines: backlog
+  epic-6-retrospective: optional

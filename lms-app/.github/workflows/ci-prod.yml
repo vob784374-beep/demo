@@ -1,0 +1,12 @@
+name: CI - Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "CI pipeline — implemented in Story 6.5"

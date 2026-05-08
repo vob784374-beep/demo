@@ -1,0 +1,108 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: lms_db
+      MYSQL_USER: lms_user
+      MYSQL_PASSWORD: lms_password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  backend:
+    build: ./backend
+    environment:
+      FLASK_APP: wsgi:app
+      APP_ENV: development
+      DATABASE_URL: mysql+pymysql://lms_user:lms_password@db:3306/lms_db
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET_KEY: dev-jwt-secret-change-in-prod
+      SECRET_KEY: dev-secret-change-in-prod
+      CORS_ORIGINS: '*'
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: flask run --host=0.0.0.0 --port=5000 --debug
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      NEXT_PUBLIC_API_URL:
+      WATCHPACK_POLLING: 'true'
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/next.config.ts:/app/next.config.ts
+    command: npm run dev
+
+  automation:
+    build:
+      context: ./automation
+    environment:
+      APP_ENV: test
+      DOCKER: "true"
+      TEST_BASE_URL: http://frontend:3000
+      API_BASE_URL: http://backend:5000
+      TEST_STUDENT_EMAIL: student@test.com
+      TEST_STUDENT_PASSWORD: Test1234!
+      TEST_TEACHER_EMAIL: teacher@test.com
+      TEST_TEACHER_PASSWORD: Test1234!
+      TEST_ADMIN_EMAIL: admin@test.com
+      TEST_ADMIN_PASSWORD: Test1234!
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_started
+    profiles:
+      - automation
+    command: npx playwright test --reporter=html
+
+  automation-ui:
+    build:
+      context: ./automation
+    environment:
+      APP_ENV: test
+      DOCKER: "true"
+      TEST_BASE_URL: http://frontend:3000
+      API_BASE_URL: http://backend:5000
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_started
+    profiles:
+      - automation
+    command: npx playwright test --ui
+    tty: true
+    stdin_open: true
+
+volumes:
+  mysql_data:

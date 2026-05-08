@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IELTS CMS — Error Pages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,wght@1,700&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #101E35; --blue: #2563EB; --blue-hover: #1D55D4;
+  --border: #E2E8F0; --bg: #F8FAFC; --white: #fff;
+  --input-bg: #F1F5F9; --text: #0F172A; --text-mid: #475569; --text-light: #94A3B8;
+}
+html, body { height: 100%; font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+/* ── DEMO NAV ── */
+.demo-nav {
+  position: fixed; top: 0; left: 0; right: 0; height: 52px;
+  background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; z-index: 999;
+}
+.demo-nav-logo { display: flex; align-items: center; gap: 9px; }
+.demo-nav-mark { width: 28px; height: 28px; border-radius: 7px; background: var(--blue); display: flex; align-items: center; justify-content: center; }
+.demo-nav-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.demo-nav-tabs { display: flex; gap: 4px; }
+.demo-tab {
+  padding: 5px 16px; border-radius: 7px;
+  border: 1.5px solid var(--border); background: var(--input-bg);
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+}
+.demo-tab:hover { border-color: var(--blue); color: var(--blue); background: rgba(37,99,235,0.07); }
+.demo-tab.t404.active { border-color: #2563EB; color: #2563EB; background: #EFF6FF; }
+.demo-tab.t401.active { border-color: #DC2626; color: #DC2626; background: #FEF2F2; }
+.demo-tab.t403.active { border-color: #D97706; color: #D97706; background: #FFFBEB; }
+.demo-tab.t500.active { border-color: #7C3AED; color: #7C3AED; background: #F5F3FF; }
+
+/* ── SCREENS ── */
+.screen { display: none; position: fixed; inset: 52px 0 0 0; overflow: hidden; }
+.screen.active { display: flex; }
+
+/* ════════════════════════════════════════
+   404 — SPLIT LAYOUT: huge number left, content right
+   Vibe: clean, editorial, open textbook
+════════════════════════════════════════ */
+.s404 {
+  background: #fff;
+  flex-direction: row;
+}
+.s404-left {
+  flex: 0 0 48%;
+  background: #EFF6FF;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+/* dot grid */
+.s404-left::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(37,99,235,0.12) 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.s404-big-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(160px, 18vw, 240px);
+  font-weight: 600;
+  color: #2563EB;
+  line-height: 1;
+  letter-spacing: -12px;
+  position: relative;
+  z-index: 1;
+  animation: numFloat 4s ease-in-out infinite;
+}
+@keyframes numFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+/* scattered letters */
+.s404-letter {
+  position: absolute;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  animation: letterBob ease-in-out infinite;
+  pointer-events: none; user-select: none;
+}
+@keyframes letterBob {
+  0%,100% { transform: translateY(0) rotate(var(--r0)); }
+  50%      { transform: translateY(-12px) rotate(var(--r1)); }
+}
+
+.s404-right {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px;
+}
+.s404-content { max-width: 380px; }
+.s404-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #EFF6FF; border: 1px solid #BFDBFE;
+  border-radius: 100px; padding: 5px 14px;
+  font-size: 11px; font-weight: 600; color: #1D4ED8;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+}
+.s404-title {
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 700; color: var(--text);
+  letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 14px;
+}
+.s404-title em {
+  font-family: 'Fraunces', serif;
+  font-style: italic; color: #2563EB;
+}
+.s404-sub {
+  font-size: 14px; color: var(--text-mid);
+  line-height: 1.7; margin-bottom: 28px;
+}
+.s404-search {
+  display: flex; gap: 8px; margin-bottom: 28px;
+}
+.s404-search-input {
+  flex: 1; height: 42px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 0 14px; font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13.5px; color: var(--text); outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.s404-search-input::placeholder { color: var(--text-light); }
+.s404-search-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); background: #fff; }
+.s404-search-btn {
+  height: 42px; padding: 0 18px;
+  background: #2563EB; border: none; border-radius: 9px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 13.5px;
+  font-weight: 600; color: #fff; cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  box-shadow: 0 2px 10px rgba(37,99,235,0.28);
+}
+.s404-search-btn:hover { background: #1D55D4; transform: translateY(-1px); }
+.s404-links {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.s404-link-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-radius: 9px; border: 1px solid var(--border);
+  background: var(--bg); cursor: pointer;
+  transition: all 0.15s; text-decoration: none;
+}
+.s404-link-item:hover { border-color: #BFDBFE; background: #EFF6FF; }
+.s404-link-icon { width: 28px; height: 28px; border-radius: 7px; background: #EFF6FF; display: flex; align-items: center; justify-content: center; color: #2563EB; flex-shrink: 0; }
+.s404-link-item:hover .s404-link-icon { background: #DBEAFE; }
+.s404-link-text { font-size: 13px; font-weight: 500; color: var(--text); }
+.s404-link-sub  { font-size: 11.5px; color: var(--text-light); }
+.s404-link-arrow { margin-left: auto; color: var(--text-light); }
+
+/* ════════════════════════════════════════
+   401 — FULL-SCREEN CENTRED, dark & dramatic
+   Vibe: security breach, red alert, biometric feel
+════════════════════════════════════════ */
+.s401 {
+  background: #060D1A;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+/* animated grid */
+.s401-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(220,38,38,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220,38,38,0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.s401-grid::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 20%, #060D1A 75%);
+}
+/* concentric pulse rings */
+.s401-pulse {
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.s401-pulse-ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(220,38,38,0.20);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: pRing 3.5s ease-out infinite;
+}
+.s401-pulse-ring:nth-child(1) { width: 180px; height: 180px; animation-delay: 0s; }
+.s401-pulse-ring:nth-child(2) { width: 300px; height: 300px; animation-delay: 0.7s; }
+.s401-pulse-ring:nth-child(3) { width: 440px; height: 440px; animation-delay: 1.4s; }
+.s401-pulse-ring:nth-child(4) { width: 580px; height: 580px; animation-delay: 2.1s; }
+@keyframes pRing { 0%{opacity:.7} 100%{opacity:0; transform:translate(-50%,-50%) scale(1.04)} }
+
+.s401-center { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; }
+
+/* keyhole icon */
+.s401-keyhole {
+  width: 96px; height: 96px; position: relative; margin-bottom: 32px;
+}
+.s401-keyhole-bg {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(220,38,38,0.10);
+  border: 1px solid rgba(220,38,38,0.25);
+  animation: keyholeGlow 2s ease-in-out infinite;
+}
+@keyframes keyholeGlow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.2); }
+  50%      { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
+}
+
+.s401-status-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(220,38,38,0.10); border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 100px; padding: 6px 16px; margin-bottom: 20px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: #F87171; letter-spacing: 0.10em; text-transform: uppercase;
+}
+.s401-blink-dot { width: 7px; height: 7px; border-radius: 50%; background: #DC2626; animation: blinkDot 1s step-end infinite; }
+@keyframes blinkDot { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.s401-big-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(80px, 12vw, 140px);
+  font-weight: 600; color: #fff;
+  line-height: 1; letter-spacing: -6px; margin-bottom: 6px;
+}
+.s401-big-num span { color: #DC2626; }
+
+.s401-title { font-size: clamp(20px, 2.2vw, 28px); font-weight: 600; color: #fff; margin-bottom: 12px; letter-spacing: -0.02em; }
+.s401-sub { font-size: 14px; color: rgba(255,255,255,0.38); line-height: 1.7; max-width: 380px; margin-bottom: 36px; }
+
+.s401-actions { display: flex; gap: 10px; }
+.btn-red {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 46px; padding: 0 24px;
+  background: #DC2626; border: none; border-radius: 10px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+  color: #fff; cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(220,38,38,0.5), 0 4px 20px rgba(220,38,38,0.35);
+  transition: all 0.15s;
+}
+.btn-red:hover { background: #B91C1C; transform: translateY(-1px); }
+.btn-dark-outline {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 46px; padding: 0 22px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px; font-weight: 500;
+  color: rgba(255,255,255,0.45); cursor: pointer; transition: all 0.15s;
+}
+.btn-dark-outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; background: rgba(255,255,255,0.08); }
+
+/* ════════════════════════════════════════
+   403 — DIAGONAL SPLIT layout
+   Vibe: restricted zone, construction tape, bold warning
+════════════════════════════════════════ */
+.s403 {
+  background: #1C1400;
+  flex-direction: row;
+  align-items: stretch;
+}
+/* left — warning zone */
+.s403-left {
+  flex: 0 0 38%;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: repeating-linear-gradient(
+    -45deg,
+    #F59E0B 0px, #F59E0B 32px,
+    #1C1400  32px, #1C1400 64px
+  );
+}
+.s403-left::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 60%, #1C1400 100%);
+  pointer-events: none;
+}
+.s403-shield {
+  position: relative; z-index: 1;
+  width: 120px; height: 120px;
+  background: #1C1400;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 3px solid #F59E0B;
+  box-shadow: 0 0 0 8px rgba(245,158,11,0.15), 0 0 60px rgba(245,158,11,0.25);
+  animation: shieldPulse 2.5s ease-in-out infinite;
+}
+@keyframes shieldPulse {
+  0%,100% { box-shadow: 0 0 0 8px rgba(245,158,11,0.15), 0 0 40px rgba(245,158,11,0.2); }
+  50%      { box-shadow: 0 0 0 16px rgba(245,158,11,0.08), 0 0 80px rgba(245,158,11,0.35); }
+}
+
+.s403-right {
+  flex: 1; display: flex; align-items: center; justify-content: flex-start;
+  padding: 56px 56px 56px 48px;
+}
+.s403-content { max-width: 420px; }
+
+.s403-eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.s403-eyebrow-line {
+  width: 32px; height: 2px;
+  background: #F59E0B; border-radius: 2px;
+}
+.s403-eyebrow-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  color: #F59E0B; letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+.s403-big-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(90px, 11vw, 140px);
+  font-weight: 700; color: #F59E0B;
+  line-height: 1; letter-spacing: -6px; margin-bottom: 10px;
+  text-shadow: 0 0 80px rgba(245,158,11,0.3);
+}
+
+.s403-title { font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; color: #fff; margin-bottom: 14px; letter-spacing: -0.02em; line-height: 1.25; }
+.s403-sub { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.7; margin-bottom: 32px; }
+
+/* notice box */
+.s403-notice {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-left: 3px solid #F59E0B;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 28px;
+  font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6;
+}
+.s403-notice strong { color: #FCD34D; font-weight: 500; }
+
+.s403-actions { display: flex; gap: 10px; }
+.btn-amber2 {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 44px; padding: 0 22px;
+  background: #D97706; border: none; border-radius: 9px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+  color: #fff; cursor: pointer; box-shadow: 0 2px 14px rgba(217,119,6,0.35);
+  transition: all 0.15s;
+}
+.btn-amber2:hover { background: #B45309; transform: translateY(-1px); }
+.btn-amber-outline {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 44px; padding: 0 20px;
+  background: none; border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 9px; font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px; font-weight: 500;
+  color: rgba(245,158,11,0.65); cursor: pointer; transition: all 0.15s;
+}
+.btn-amber-outline:hover { border-color: #F59E0B; color: #FCD34D; background: rgba(245,158,11,0.06); }
+
+/* ════════════════════════════════════════
+   500 — FULL-WIDTH TERMINAL, purple/code aesthetic
+   Vibe: system crash log, ops dashboard, dark IDE
+════════════════════════════════════════ */
+.s500 {
+  background: #0D0B1A;
+  flex-direction: column;
+  position: relative; overflow: hidden;
+}
+/* animated noise/static */
+.s500-static {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(124,58,237,0.03) 2px, rgba(124,58,237,0.03) 3px
+  );
+  animation: staticScroll 0.5s linear infinite;
+}
+@keyframes staticScroll { from{background-position:0 0} to{background-position:0 4px} }
+
+/* ambient glow */
+.s500-glow-left  { position: absolute; top: -100px; left: -100px; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 65%); pointer-events: none; }
+.s500-glow-right { position: absolute; bottom: -80px; right: -80px;  width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,0.09) 0%, transparent 65%); pointer-events: none; }
+
+.s500-layout {
+  position: relative; z-index: 2;
+  display: flex; height: 100%;
+}
+
+/* left: big number + status */
+.s500-left {
+  flex: 0 0 40%;
+  display: flex; flex-direction: column;
+  justify-content: center; padding: 48px 48px 48px 56px;
+  border-right: 1px solid rgba(124,58,237,0.15);
+}
+.s500-status-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(124,58,237,0.12);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 100px; padding: 5px 14px; margin-bottom: 28px;
+  width: fit-content;
+}
+.s500-status-dot { width: 7px; height: 7px; border-radius: 50%; background: #7C3AED; animation: blinkDot 1.2s step-end infinite; }
+.s500-status-text { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #A78BFA; letter-spacing: 0.10em; text-transform: uppercase; }
+
+.s500-big-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(100px, 13vw, 168px);
+  font-weight: 700; line-height: 1; letter-spacing: -8px;
+  background: linear-gradient(135deg, #7C3AED, #A78BFA 50%, #C4B5FD);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 16px;
+}
+.s500-title { font-size: clamp(18px, 1.8vw, 22px); font-weight: 600; color: #fff; margin-bottom: 10px; letter-spacing: -0.02em; }
+.s500-sub { font-size: 13.5px; color: rgba(255,255,255,0.35); line-height: 1.7; margin-bottom: 32px; max-width: 280px; }
+
+.s500-actions { display: flex; flex-direction: column; gap: 10px; max-width: 260px; }
+.btn-purple {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 44px; padding: 0 22px;
+  background: #7C3AED; border: none; border-radius: 9px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+  color: #fff; cursor: pointer;
+  box-shadow: 0 2px 16px rgba(124,58,237,0.40);
+  transition: all 0.15s; justify-content: center;
+}
+.btn-purple:hover { background: #6D28D9; transform: translateY(-1px); }
+.btn-purple-outline {
+  display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+  height: 44px; padding: 0 22px;
+  background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 9px; font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px; font-weight: 500; color: #A78BFA;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-purple-outline:hover { border-color: #7C3AED; background: rgba(124,58,237,0.15); color: #C4B5FD; }
+
+/* right: terminal panel */
+.s500-right {
+  flex: 1;
+  display: flex; flex-direction: column;
+  padding: 32px 40px;
+  overflow: hidden;
+}
+
+.s500-term-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+}
+.s500-term-dots { display: flex; gap: 6px; }
+.s500-term-dot  { width: 10px; height: 10px; border-radius: 50%; }
+.s500-term-dot.r { background: #FF5F56; }
+.s500-term-dot.y { background: #FFBD2E; }
+.s500-term-dot.g { background: #27C93F; }
+.s500-term-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.2); margin-left: 6px; letter-spacing: 0.04em; }
+
+.s500-term-window {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 12px; flex: 1; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.s500-term-scroll {
+  flex: 1; overflow-y: auto; padding: 20px 22px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.9;
+}
+.s500-term-scroll::-webkit-scrollbar { width: 4px; }
+.s500-term-scroll::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.25); border-radius: 4px; }
+
+.tl { display: block; }
+.tl-dim    { color: rgba(255,255,255,0.2); }
+.tl-white  { color: rgba(255,255,255,0.8); }
+.tl-purple { color: #A78BFA; }
+.tl-red    { color: #F87171; }
+.tl-green  { color: #4ADE80; }
+.tl-amber  { color: #FCD34D; }
+.tl-blue   { color: #60A5FA; }
+
+.s500-cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: #A78BFA; animation: blinkCursor 1s step-end infinite;
+  vertical-align: middle;
+}
+@keyframes blinkCursor { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.s500-term-footer {
+  border-top: 1px solid rgba(124,58,237,0.15);
+  padding: 10px 22px;
+  display: flex; gap: 16px;
+}
+.s500-term-stat { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.2); }
+.s500-term-stat span { color: rgba(255,255,255,0.45); }
+
+/* ── TWEAKS ── */
+#tweaks-panel {
+  display: none; position: fixed; bottom: 20px; right: 20px;
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+  padding: 18px 20px; width: 220px; z-index: 1000;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+#tweaks-panel.open { display: block; }
+.tweak-head { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mid); margin-bottom: 14px; }
+.tweak-row { margin-bottom: 12px; }
+.tweak-lbl { font-size: 11px; color: var(--text-light); margin-bottom: 6px; display: block; }
+.tweak-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.tweak-btn {
+  padding: 4px 10px; border-radius: 6px;
+  border: 1.5px solid var(--border); background: var(--input-bg);
+  font-size: 11.5px; cursor: pointer; color: var(--text-mid);
+  font-family: inherit; transition: all 0.14s;
+}
+.tweak-btn.on, .tweak-btn:hover { border-color: var(--blue); background: rgba(37,99,235,0.07); color: var(--blue); }
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.screen.active > * { animation: fadeSlide 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+@media (max-width: 760px) {
+  .s404 { flex-direction: column; }
+  .s404-left { flex: 0 0 220px; }
+  .s404-right { padding: 28px; }
+  .s403 { flex-direction: column; }
+  .s403-left { flex: 0 0 120px; }
+  .s403-right { padding: 28px; }
+  .s500-layout { flex-direction: column; }
+  .s500-left { flex: none; padding: 28px 24px 20px; border-right: none; border-bottom: 1px solid rgba(124,58,237,0.15); }
+  .s500-right { padding: 20px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- DEMO NAV -->
+<nav class="demo-nav">
+  <div class="demo-nav-logo">
+    <div class="demo-nav-mark">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V7l8-4 8 4v12"/><path d="M9 19v-5h6v5"/><path d="M4 7l8 4 8-4"/></svg>
+    </div>
+    <span class="demo-nav-name">IELTS CMS</span>
+  </div>
+  <div class="demo-nav-tabs">
+    <button class="demo-tab t404 active" onclick="show('404',this)">404</button>
+    <button class="demo-tab t401" onclick="show('401',this)">401</button>
+    <button class="demo-tab t403" onclick="show('403',this)">403</button>
+    <button class="demo-tab t500" onclick="show('500',this)">500</button>
+  </div>
+</nav>
+
+<!-- ══════ 404 ══════ -->
+<div class="screen s404 active" id="screen-404">
+  <!-- LEFT: big number + floating tiles -->
+  <div class="s404-left">
+    <div class="s404-letter" style="width:44px;height:44px;font-size:20px;background:#DBEAFE;color:#1D4ED8;top:12%;left:12%;--r0:-8deg;--r1:4deg;animation-duration:5.2s;animation-delay:0s">A</div>
+    <div class="s404-letter" style="width:36px;height:36px;font-size:16px;background:#D1FAE5;color:#065F46;top:20%;left:72%;--r0:6deg;--r1:-3deg;animation-duration:4.5s;animation-delay:.3s">B</div>
+    <div class="s404-letter" style="width:48px;height:48px;font-size:22px;background:#EDE9FE;color:#5B21B6;top:68%;left:10%;--r0:-5deg;--r1:8deg;animation-duration:6s;animation-delay:.6s">C</div>
+    <div class="s404-letter" style="width:38px;height:38px;font-size:17px;background:#FEE2E2;color:#991B1B;top:74%;left:75%;--r0:10deg;--r1:-5deg;animation-duration:5.6s;animation-delay:.9s">D</div>
+    <div class="s404-letter" style="width:42px;height:42px;font-size:19px;background:#FEF3C7;color:#92400E;top:44%;left:80%;--r0:-12deg;--r1:3deg;animation-duration:4.8s;animation-delay:1.2s">E</div>
+    <div class="s404-letter" style="width:34px;height:34px;font-size:15px;background:#DBEAFE;color:#1D4ED8;top:88%;left:30%;--r0:7deg;--r1:-9deg;animation-duration:5.4s;animation-delay:1.5s">F</div>
+    <div class="s404-big-num">404</div>
+  </div>
+  <!-- RIGHT: content -->
+  <div class="s404-right">
+    <div class="s404-content">
+      <div class="s404-tag">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Page not found
+      </div>
+      <h1 class="s404-title">Looks like this page<br>took a <em>wrong turn.</em></h1>
+      <p class="s404-sub">The resource you're looking for doesn't exist in this system or may have been moved. Try searching or use the quick links below.</p>
+
+      <div class="s404-search">
+        <input class="s404-search-input" type="text" placeholder="Search courses, students, assessments…" />
+        <button class="s404-search-btn">Search</button>
+      </div>
+
+      <div class="s404-links">
+        <a class="s404-link-item" href="#">
+          <div class="s404-link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <div><div class="s404-link-text">Course Dashboard</div><div class="s404-link-sub">View all active courses</div></div>
+          <span class="s404-link-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="s404-link-item" href="#">
+          <div class="s404-link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div><div class="s404-link-text">Student Management</div><div class="s404-link-sub">Learner profiles & progress</div></div>
+          <span class="s404-link-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a>
+        <a class="s404-link-item" href="#">
+          <div class="s404-link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div><div class="s404-link-text">Assessments</div><div class="s404-link-sub">Mock tests & band scores</div></div>
+          <span class="s404-link-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 401 ══════ -->
+<div class="screen s401" id="screen-401">
+  <div class="s401-grid"></div>
+  <div class="s401-pulse">
+    <div class="s401-pulse-ring"></div>
+    <div class="s401-pulse-ring"></div>
+    <div class="s401-pulse-ring"></div>
+    <div class="s401-pulse-ring"></div>
+  </div>
+  <div class="s401-center">
+    <div class="s401-keyhole">
+      <div class="s401-keyhole-bg"></div>
+      <svg style="position:relative;z-index:1" width="96" height="96" viewBox="0 0 96 96" fill="none">
+        <circle cx="48" cy="40" r="14" stroke="#DC2626" stroke-width="2.5"/>
+        <path d="M41 52l-5 20h24l-5-20" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="s401-status-bar"><div class="s401-blink-dot"></div>Session Expired · HTTP 401</div>
+    <div class="s401-big-num"><span>4</span>0<span>1</span></div>
+    <h1 class="s401-title">Unauthorised Access</h1>
+    <p class="s401-sub">Your session has expired or your credentials are no longer valid. Please sign in again to continue accessing the IELTS CMS.</p>
+    <div class="s401-actions">
+      <button class="btn-red">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In Again
+      </button>
+      <button class="btn-dark-outline">Contact Support</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 403 ══════ -->
+<div class="screen s403" id="screen-403">
+  <div class="s403-left">
+    <div class="s403-shield">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+  </div>
+  <div class="s403-right">
+    <div class="s403-content">
+      <div class="s403-eyebrow">
+        <div class="s403-eyebrow-line"></div>
+        <div class="s403-eyebrow-text">HTTP 403 · Forbidden</div>
+      </div>
+      <div class="s403-big-num">403</div>
+      <h1 class="s403-title">Access Forbidden</h1>
+      <p class="s403-sub">You don't have permission to view this section. This area requires elevated system privileges that are not assigned to your account.</p>
+      <div class="s403-notice">
+        <strong>Restricted to:</strong> System Administrators & Senior Instructors only. If you require access, submit a request to your institution administrator.
+      </div>
+      <div class="s403-actions">
+        <button class="btn-amber2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 12l6-6M3 12l6 6"/></svg>
+          Go Back
+        </button>
+        <button class="btn-amber-outline">Request Access</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 500 ══════ -->
+<div class="screen s500" id="screen-500">
+  <div class="s500-static"></div>
+  <div class="s500-glow-left"></div>
+  <div class="s500-glow-right"></div>
+  <div class="s500-layout">
+    <!-- LEFT: status + actions -->
+    <div class="s500-left">
+      <div class="s500-status-chip">
+        <div class="s500-status-dot"></div>
+        <span class="s500-status-text">System Fault</span>
+      </div>
+      <div class="s500-big-num">500</div>
+      <h1 class="s500-title">Internal Server Error</h1>
+      <p class="s500-sub">Something broke on our end. Our engineering team has been automatically notified and is investigating.</p>
+      <div class="s500-actions">
+        <button class="btn-purple" onclick="retryBtn(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Retry Request
+        </button>
+        <button class="btn-purple-outline">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 12l6-6M3 12l6 6"/></svg>
+          Back to Dashboard
+        </button>
+      </div>
+    </div>
+    <!-- RIGHT: live error terminal -->
+    <div class="s500-right">
+      <div class="s500-term-header">
+        <div class="s500-term-dots">
+          <div class="s500-term-dot r"></div>
+          <div class="s500-term-dot y"></div>
+          <div class="s500-term-dot g"></div>
+        </div>
+        <span class="s500-term-label">ielts-cms · error.log · live</span>
+      </div>
+      <div class="s500-term-window">
+        <div class="s500-term-scroll" id="term-scroll">
+          <span class="tl"><span class="tl-dim">[09:38:01]</span> <span class="tl-green">INFO</span>  <span class="tl-white">Server listening on port 8080</span></span>
+          <span class="tl"><span class="tl-dim">[09:38:02]</span> <span class="tl-green">INFO</span>  <span class="tl-white">DB pool initialized — max: 20 connections</span></span>
+          <span class="tl"><span class="tl-dim">[09:38:04]</span> <span class="tl-green">INFO</span>  <span class="tl-white">Redis cache connected at localhost:6379</span></span>
+          <span class="tl"><span class="tl-dim">[09:40:11]</span> <span class="tl-blue">REQ</span>   <span class="tl-purple">GET</span> <span class="tl-white">/api/courses/dashboard</span> <span class="tl-green">200</span> <span class="tl-dim">11ms</span></span>
+          <span class="tl"><span class="tl-dim">[09:40:14]</span> <span class="tl-blue">REQ</span>   <span class="tl-purple">GET</span> <span class="tl-white">/api/users/me</span> <span class="tl-green">200</span> <span class="tl-dim">4ms</span></span>
+          <span class="tl"><span class="tl-dim">[09:40:55]</span> <span class="tl-amber">WARN</span>  <span class="tl-white">DB pool utilisation at 87% — approaching limit</span></span>
+          <span class="tl"><span class="tl-dim">[09:41:01]</span> <span class="tl-blue">REQ</span>   <span class="tl-purple">POST</span> <span class="tl-white">/api/assess/submit</span> <span class="tl-green">200</span> <span class="tl-dim">78ms</span></span>
+          <span class="tl"><span class="tl-dim">[09:41:03]</span> <span class="tl-red">ERROR</span> <span class="tl-white">DB connection timeout after 5000ms</span></span>
+          <span class="tl"><span class="tl-dim">[09:41:03]</span> <span class="tl-red">ERROR</span> <span class="tl-white">Unhandled exception in CourseService.getDashboard</span></span>
+          <span class="tl"><span class="tl-dim">          </span>         <span class="tl-dim">at resolveDBHandler (server/db.js:142:8)</span></span>
+          <span class="tl"><span class="tl-dim">          </span>         <span class="tl-dim">at async CourseService.getDashboard (services/course.js:89)</span></span>
+          <span class="tl"><span class="tl-dim">          </span>         <span class="tl-dim">at async handler (routes/api.js:34)</span></span>
+          <span class="tl"><span class="tl-dim">[09:41:03]</span> <span class="tl-blue">REQ</span>   <span class="tl-purple">GET</span> <span class="tl-white">/api/courses/dashboard</span> <span class="tl-red">500</span> <span class="tl-dim">5001ms</span></span>
+          <span class="tl"><span class="tl-dim">[09:41:03]</span> <span class="tl-amber">ALERT</span> <span class="tl-white">Incident auto-reported → ops@ielts-pro.edu</span></span>
+          <span class="tl"><span class="tl-dim">[09:41:03]</span> <span class="tl-purple">SYS</span>   <span class="tl-white">Awaiting recovery</span> <span class="s500-cursor"></span></span>
+        </div>
+        <div class="s500-term-footer">
+          <span class="s500-term-stat">uptime <span>99.91%</span></span>
+          <span class="s500-term-stat">region <span>ap-southeast-1</span></span>
+          <span class="s500-term-stat">build <span>v3.12.4</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TWEAKS -->
+<div id="tweaks-panel">
+  <div class="tweak-head">Tweaks</div>
+  <div class="tweak-row">
+    <span class="tweak-lbl">Page</span>
+    <div class="tweak-opts">
+      <button class="tweak-btn on" onclick="showTweak('404',this)">404</button>
+      <button class="tweak-btn" onclick="showTweak('401',this)">401</button>
+      <button class="tweak-btn" onclick="showTweak('403',this)">403</button>
+      <button class="tweak-btn" onclick="showTweak('500',this)">500</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"page":"404"}/*EDITMODE-END*/;
+
+  function show(code, tab) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('screen-' + code).classList.add('active');
+    if (tab) tab.classList.add('active');
+    else {
+      const tabs = ['404','401','403','500'];
+      document.querySelectorAll('.demo-tab')[tabs.indexOf(code)].classList.add('active');
+    }
+  }
+  function showTweak(code, btn) {
+    show(code, null);
+    btn.closest('.tweak-opts').querySelectorAll('.tweak-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { page: code } }, '*');
+  }
+
+  function retryBtn(btn) {
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .7s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Retrying…';
+    btn.style.opacity = '0.7';
+    // add a new log line
+    setTimeout(() => {
+      const scroll = document.getElementById('term-scroll');
+      const line = document.createElement('span');
+      line.className = 'tl';
+      line.innerHTML = '<span class="tl-dim">[09:41:06]</span> <span class="tl-blue">REQ</span>   <span class="tl-purple">GET</span> <span class="tl-white">/api/courses/dashboard</span> <span class="tl-red">500</span> <span class="tl-dim">5000ms — retry failed</span>';
+      scroll.appendChild(line);
+      scroll.scrollTop = scroll.scrollHeight;
+      btn.innerHTML = orig;
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }, 1800);
+  }
+
+  // tweaks
+  window.addEventListener('message', e => {
+    if (e.data?.type === '__activate_edit_mode')   document.getElementById('tweaks-panel').classList.add('open');
+    if (e.data?.type === '__deactivate_edit_mode') document.getElementById('tweaks-panel').classList.remove('open');
+  });
+  window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+
+  // scroll terminal to bottom on load
+  document.getElementById('term-scroll').scrollTop = 99999;
+</script>
+</body>
+</html>

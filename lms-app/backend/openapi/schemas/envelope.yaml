@@ -1,0 +1,62 @@
+SuccessEnvelope:
+  type: object
+  required: [success, code, message, data, meta, request_id]
+  properties:
+    success:
+      type: boolean
+      example: true
+    code:
+      type: string
+      example: OK
+    message:
+      type: string
+      example: Success
+    data:
+      nullable: true
+      description: Response payload — shape varies by endpoint
+    meta:
+      nullable: true
+      description: Pagination metadata (only on list endpoints)
+      $ref: '#/components/schemas/PaginationMeta'
+    request_id:
+      type: string
+      nullable: true
+      example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+ErrorEnvelope:
+  type: object
+  required: [success, code, message, data, meta, request_id]
+  properties:
+    success:
+      type: boolean
+      example: false
+    code:
+      type: string
+      example: VALIDATION_ERROR
+      enum: [VALIDATION_ERROR, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INTERNAL_ERROR]
+    message:
+      type: string
+      example: "email: Not a valid email address"
+    data:
+      nullable: true
+      example: null
+    meta:
+      nullable: true
+      example: null
+    request_id:
+      type: string
+      nullable: true
+
+PaginationMeta:
+  type: object
+  required: [page, per_page, total]
+  properties:
+    page:
+      type: integer
+      example: 1
+    per_page:
+      type: integer
+      example: 20
+    total:
+      type: integer
+      example: 42
